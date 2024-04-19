@@ -15,7 +15,7 @@ class Home extends StatelessWidget {
       body: Consumer<UserDetailsModel>(
         builder: (context, userDetailsModel, _) {
           if (userDetailsModel.userDetailList.isEmpty) {
-            return Center(
+            return const Center(
               child: Text('No user details added yet'),
             );
           } else {
@@ -27,13 +27,28 @@ class Home extends StatelessWidget {
                 return Card(
                   child: ListTile(
                     title: Text(
-                        'Name: ${userDetails['firstName']} ${userDetails['lastName']}'),
+                      'Name: ${userDetails['firstName']} ${userDetails['lastName']}',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w500),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Email: ${userDetails['email']}'),
-                        Text('Phone Number: ${userDetails['phoneNumber']}'),
-                        Text('Note: ${userDetails['userNote']}'),
+                        Text(
+                          'Email: ${userDetails['email']}',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          'Phone Number: ${userDetails['phoneNumber']}',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          'Note: ${userDetails['userNote']}',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500),
+                        ),
                       ],
                     ),
                   ),
