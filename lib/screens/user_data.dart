@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_practice_application/models/user_details_model.dart';
 import 'package:flutter_practice_application/screens/home_screen.dart';
 import 'package:flutter_practice_application/ui_helper/ui_helper_model.dart';
+import 'package:provider/provider.dart';
 
 class UserDetails extends StatefulWidget {
   const UserDetails({super.key});
@@ -10,11 +12,11 @@ class UserDetails extends StatefulWidget {
   State<UserDetails> createState() => _UserDetailsState();
 }
 
-TextEditingController emailController = TextEditingController();
-TextEditingController pnumberController = TextEditingController();
-TextEditingController firstNameController = TextEditingController();
-TextEditingController lastNameController = TextEditingController();
-TextEditingController userNoteController = TextEditingController();
+final TextEditingController firstNameController = TextEditingController();
+final TextEditingController lastNameController = TextEditingController();
+final TextEditingController emailController = TextEditingController();
+final TextEditingController pnumberController = TextEditingController();
+final TextEditingController userNoteController = TextEditingController();
 
 class _UserDetailsState extends State<UserDetails> {
   @override
@@ -46,16 +48,10 @@ class _UserDetailsState extends State<UserDetails> {
                 ),
               ],
             ),
-            UiHelper.CustomTextField(
-              emailController,
-              false,
-              'Email',
-            ),
-            UiHelper.CustomTextField(
-              pnumberController,
-              false,
-              'Phone Number',
-            ),
+            UiHelper.CustomTextFieldWithIcon(emailController, false, 'Email',
+                Icons.person_2_outlined, TextInputType.emailAddress),
+            UiHelper.CustomTextFieldWithIcon(pnumberController, false,
+                'Phone Number', Icons.numbers, TextInputType.number),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: Container(
@@ -65,7 +61,7 @@ class _UserDetailsState extends State<UserDetails> {
                     color: Colors.white70,
                     border: Border.all(),
                     borderRadius: BorderRadius.circular(12)),
-                child: UiHelper.CustomUerNote(
+                child: UiHelper.CustomUserNote(
                     userNoteController, false, 'Note Something...'),
               ),
             ),
@@ -102,8 +98,16 @@ class _UserDetailsState extends State<UserDetails> {
                           )),
                     );
                   } else {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Home()));
+                    final userDetailsModel =
+                        Provider.of<UserDetailsModel>(context, listen: false);
+                    userDetailsModel.addUserDetails(
+                      firstName: firstNameController.text.trim(),
+                      lastName: lastNameController.text.trim(),
+                      email: emailController.text.trim(),
+                      phoneNumber: pnumberController.text.trim(),
+                      userNote: userNoteController.text.trim(),
+                    );
+                    Navigator.pop(context); // Close UserDetailsScree
                   }
                 },
                 child: Padding(

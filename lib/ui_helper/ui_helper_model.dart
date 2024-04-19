@@ -24,11 +24,12 @@ class UiHelper {
     );
   }
 
-  static CustomTextFieldWithIcon(
-      controller, bool hide, String hintText, IconData iconData) {
+  static CustomTextFieldWithIcon(controller, bool hide, String hintText,
+      IconData iconData, TextInputType textInput) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: TextField(
+        keyboardType: textInput,
         controller: controller,
         decoration: InputDecoration(
             suffixIcon: Icon(iconData),
@@ -68,7 +69,7 @@ class UiHelper {
     );
   }
 
-  static CustomUerNote(
+  static CustomUserNote(
     controller,
     bool hide,
     String hintText,

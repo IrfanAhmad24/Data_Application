@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_practice_application/models/user_details_model.dart';
 import 'package:flutter_practice_application/screens/user_data.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -10,8 +12,36 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.blue,
       ),
-      body: const Column(
-        children: [],
+      body: Consumer<UserDetailsModel>(
+        builder: (context, userDetailsModel, _) {
+          if (userDetailsModel.userDetailList.isEmpty) {
+            return Center(
+              child: Text('No user details added yet'),
+            );
+          } else {
+            return ListView.builder(
+              itemCount: userDetailsModel.userDetailList.length,
+              itemBuilder: (context, index) {
+                Map<String, String> userDetails =
+                    userDetailsModel.userDetailList[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(
+                        'Name: ${userDetails['firstName']} ${userDetails['lastName']}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Email: ${userDetails['email']}'),
+                        Text('Phone Number: ${userDetails['phoneNumber']}'),
+                        Text('Note: ${userDetails['userNote']}'),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
