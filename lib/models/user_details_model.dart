@@ -28,6 +28,13 @@ class UserDetailsModel extends ChangeNotifier {
     notifyListeners(); // Notify listeners to update UI
   }
 
+  void removeUserDetail(int index) {
+    if (index >= 0 && index < userDetailList.length) {
+      userDetailList.removeAt(index);
+      notifyListeners();
+    }
+  }
+
   void setUserDetails({
     required String firstName,
     required String lastName,

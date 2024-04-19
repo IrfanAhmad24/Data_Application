@@ -109,6 +109,11 @@ class _UserDetailsState extends State<UserDetails> {
                     );
                     Navigator.pop(context);
                   }
+                  firstNameController.clear();
+                  lastNameController.clear();
+                  emailController.clear();
+                  pnumberController.clear();
+                  userNoteController.clear();
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -124,7 +129,7 @@ class _UserDetailsState extends State<UserDetails> {
                         'Add',
                         style: TextStyle(
                             fontSize: 20,
-                            color: Colors.black,
+                            color: Colors.white,
                             fontWeight: FontWeight.w400),
                       ),
                     ),

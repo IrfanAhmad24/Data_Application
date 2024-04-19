@@ -10,7 +10,13 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.purple,
+        title: const Text(
+          'User Data',
+          style: TextStyle(
+              fontSize: 23, fontWeight: FontWeight.w600, color: Colors.white),
+        ),
+        centerTitle: true,
       ),
       body: Consumer<UserDetailsModel>(
         builder: (context, userDetailsModel, _) {
@@ -34,6 +40,16 @@ class Home extends StatelessWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InkWell(
+                                onTap: () {
+                                  userDetailsModel.removeUserDetail(index);
+                                },
+                                child: Icon(Icons.delete))
+                          ],
+                        ),
                         Text(
                           'Email: ${userDetails['email']}',
                           style: const TextStyle(
@@ -59,12 +75,15 @@ class Home extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.purple,
         onPressed: () {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const UserDetails()));
         },
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }
