@@ -7,11 +7,17 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+      ),
+      body: const Column(
+        children: [],
+      ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
         onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => UserDetails()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const UserDetails()));
         },
         child: const Icon(Icons.add),
       ),
