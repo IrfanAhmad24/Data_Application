@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_practice_application/models/user_details_model.dart';
-import 'package:flutter_practice_application/screens/home_screen.dart';
+
 import 'package:flutter_practice_application/ui_helper/ui_helper_model.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +74,7 @@ class _UserDetailsState extends State<UserDetails> {
                   String email = emailController.text.trim();
                   String phoneNumber = pnumberController.text.trim();
                   String userNote = userNoteController.text.trim();
-
+                  // condition if empty them showDialog
                   if (firstName.isEmpty ||
                       lastName.isEmpty ||
                       email.isEmpty ||
@@ -98,6 +98,7 @@ class _UserDetailsState extends State<UserDetails> {
                           )),
                     );
                   } else {
+                    // else add user data with provider and model of userdetails
                     final userDetailsModel =
                         Provider.of<UserDetailsModel>(context, listen: false);
                     userDetailsModel.addUserDetails(
@@ -109,12 +110,14 @@ class _UserDetailsState extends State<UserDetails> {
                     );
                     Navigator.pop(context);
                   }
+                  // clear fields when close page
                   firstNameController.clear();
                   lastNameController.clear();
                   emailController.clear();
                   pnumberController.clear();
                   userNoteController.clear();
                 },
+                // add task button.
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(

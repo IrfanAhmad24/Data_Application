@@ -40,6 +40,7 @@ class Home extends StatelessWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // icon to remove card
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [

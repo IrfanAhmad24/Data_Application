@@ -34,19 +34,4 @@ class UserDetailsModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  void setUserDetails({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phoneNumber,
-    required String userNote,
-  }) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.email = email;
-    this.phoneNumber = phoneNumber;
-    this.userNote = userNote;
-    notifyListeners();
-  }
 }
