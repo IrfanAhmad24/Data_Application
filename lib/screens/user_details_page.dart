@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_practice_application/models/user_details_model.dart';
-
-import 'package:flutter_practice_application/ui_helper/ui_helper_model.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_practice_application/models/user_model.dart';
 
 class UserDetails extends StatefulWidget {
   const UserDetails({super.key});
@@ -17,6 +14,8 @@ final TextEditingController lastNameController = TextEditingController();
 final TextEditingController emailController = TextEditingController();
 final TextEditingController pnumberController = TextEditingController();
 final TextEditingController userNoteController = TextEditingController();
+
+List<User> userDetailList = [];
 
 class _UserDetailsState extends State<UserDetails> {
   @override
@@ -36,22 +35,78 @@ class _UserDetailsState extends State<UserDetails> {
           children: [
             Row(
               children: [
-                UiHelper.CustomTextFieldWithIconInRow(
-                  firstNameController,
-                  false,
-                  'First Name',
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
+                  child: Container(
+                    height: 75,
+                    width: 145,
+                    child: Center(
+                      child: TextField(
+                        controller: firstNameController,
+                        decoration: InputDecoration(
+                            hintText: "First Name",
+                            enabled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            )),
+                        obscureText: false,
+                      ),
+                    ),
+                  ),
                 ),
-                UiHelper.CustomTextFieldWithIconInRow(
-                  lastNameController,
-                  false,
-                  'Last Name',
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
+                  child: Container(
+                    height: 75,
+                    width: 145,
+                    child: Center(
+                      child: TextField(
+                        controller: lastNameController,
+                        decoration: InputDecoration(
+                            hintText: "Last Name",
+                            enabled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            )),
+                        obscureText: false,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
-            UiHelper.CustomTextFieldWithIcon(emailController, false, 'Email',
-                Icons.person_2_outlined, TextInputType.emailAddress),
-            UiHelper.CustomTextFieldWithIcon(pnumberController, false,
-                'Phone Number', Icons.numbers, TextInputType.number),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: TextField(
+                keyboardType: TextInputType.emailAddress,
+                controller: pnumberController,
+                decoration: InputDecoration(
+                    suffixIcon: const Icon(Icons.email),
+                    hintText: 'Email',
+                    enabled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    )),
+                obscureText: false,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: TextField(
+                keyboardType: TextInputType.emailAddress,
+                controller: emailController,
+                decoration: InputDecoration(
+                    suffixIcon: const Icon(Icons.numbers),
+                    hintText: 'Phone Number',
+                    enabled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    )),
+                obscureText: false,
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: Container(
@@ -61,8 +116,21 @@ class _UserDetailsState extends State<UserDetails> {
                     color: Colors.white70,
                     border: Border.all(),
                     borderRadius: BorderRadius.circular(12)),
-                child: UiHelper.CustomUserNote(
-                    userNoteController, false, 'Note Something...'),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: TextField(
+                    enabled: true,
+                    maxLines: 20,
+                    controller: userNoteController,
+                    decoration: const InputDecoration.collapsed(
+                      hintText: "Note Something",
+                      enabled: true,
+                      border: InputBorder.none,
+                    ),
+                    obscureText: false,
+                  ),
+                ),
               ),
             ),
             Row(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -98,18 +166,20 @@ class _UserDetailsState extends State<UserDetails> {
                           )),
                     );
                   } else {
-                    // else add user data with provider and model of userdetails
-                    final userDetailsModel =
-                        Provider.of<UserDetailsModel>(context, listen: false);
-                    userDetailsModel.addUserDetails(
-                      firstName: firstNameController.text.trim(),
-                      lastName: lastNameController.text.trim(),
-                      email: emailController.text.trim(),
-                      phoneNumber: pnumberController.text.trim(),
-                      userNote: userNoteController.text.trim(),
+                    User newUser = User(
+                      firstName: firstName,
+                      lastName: lastName,
+                      email: email,
+                      phoneNumber: phoneNumber,
+                      userNote: userNote,
                     );
-                    Navigator.pop(context);
+
+                    setState(() {
+                      userDetailList.add(newUser);
+                    });
+                    Navigator.pop(context, newUser);
                   }
+
                   // clear fields when close page
                   firstNameController.clear();
                   lastNameController.clear();

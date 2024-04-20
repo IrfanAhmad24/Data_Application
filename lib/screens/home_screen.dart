@@ -1,85 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_practice_application/models/user_details_model.dart';
-import 'package:flutter_practice_application/screens/user_data.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_practice_application/models/user_model.dart';
+import 'package:flutter_practice_application/screens/user_details_page.dart';
 
-class Home extends StatelessWidget {
-  const Home({super.key});
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
+
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  List<User> userDetailList = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.deepPurple,
         title: const Text(
-          'User Data',
+          'User List',
           style: TextStyle(
-              fontSize: 23, fontWeight: FontWeight.w600, color: Colors.white),
+              color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
-      body: Consumer<UserDetailsModel>(
-        builder: (context, userDetailsModel, _) {
-          if (userDetailsModel.userDetailList.isEmpty) {
-            return const Center(
-              child: Text('No user details added yet'),
-            );
-          } else {
-            return ListView.builder(
-              itemCount: userDetailsModel.userDetailList.length,
-              itemBuilder: (context, index) {
-                Map<String, String> userDetails =
-                    userDetailsModel.userDetailList[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(
-                      'Name: ${userDetails['firstName']} ${userDetails['lastName']}',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w500),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // icon to remove card
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            InkWell(
-                                onTap: () {
-                                  userDetailsModel.removeUserDetail(index);
-                                },
-                                child: Icon(Icons.delete))
-                          ],
-                        ),
-                        Text(
-                          'Email: ${userDetails['email']}',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w500),
-                        ),
-                        Text(
-                          'Phone Number: ${userDetails['phoneNumber']}',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w500),
-                        ),
-                        Text(
-                          'Note: ${userDetails['userNote']}',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          }
+      body: ListView.builder(
+        itemCount: userDetailList.length,
+        itemBuilder: (context, index) {
+          User user = userDetailList[index];
+
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: ListTile(
+              title: Text('${user.firstName} ${user.lastName}'),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Email: ${user.email}'),
+                  Text('Phone: ${user.phoneNumber}'),
+                  Text('User Note: ${user.userNote}'),
+                ],
+              ),
+            ),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.purple,
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const UserDetails()));
+        backgroundColor: Colors.deepPurple,
+        onPressed: () async {
+          // Navigate to UserDetails and wait for result
+          final newUser = await Navigator.push<User>(
+            context,
+            MaterialPageRoute(builder: (context) => const UserDetails()),
+          );
+
+          // Add new user to the list if user is not null
+          if (newUser != null) {
+            setState(() {
+              userDetailList.add(newUser);
+            });
+          }
         },
         child: const Icon(
           Icons.add,
