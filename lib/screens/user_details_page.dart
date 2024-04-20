@@ -83,14 +83,14 @@ class _UserDetailsState extends State<UserDetails> {
                                   borderRadius: BorderRadius.circular(20),
                                 )),
                             obscureText: false,
-                            onChanged: (value) {
-                              lastName = value;
-                            },
+                            // onChanged: (value) {
+                            //   lastName = value;
+                            // },
                             validator: (String? value) {
                               if (value!.isEmpty) {
                                 return "can't be empty";
                               }
-                              null;
+                              return null;
                             }),
                       ),
                     ),
@@ -118,14 +118,14 @@ class _UserDetailsState extends State<UserDetails> {
                       if (value!.isEmpty) {
                         return " Email can't be empty";
                       }
-                      null;
+                      return null;
                     }),
               ),
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: TextFormField(
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.number,
                     controller: emailController,
                     decoration: InputDecoration(
                         suffixIcon: const Icon(Icons.numbers),
@@ -202,12 +202,6 @@ class _UserDetailsState extends State<UserDetails> {
                       });
                       Navigator.pop(context, newUser);
                     }
-                    // clear fields when close page
-                    firstNameController.clear();
-                    lastNameController.clear();
-                    emailController.clear();
-                    pnumberController.clear();
-                    userNoteController.clear();
                   },
                   // add task button.
                   child: Padding(
