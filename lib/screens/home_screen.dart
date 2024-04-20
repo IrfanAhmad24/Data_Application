@@ -32,7 +32,11 @@ class _HomeState extends State<Home> {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: ListTile(
-              title: Text('${user.firstName} ${user.lastName}'),
+              title: Text(
+                '${user.firstName} ${user.lastName}',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
