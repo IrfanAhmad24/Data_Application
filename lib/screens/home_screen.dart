@@ -3,7 +3,7 @@ import 'package:flutter_practice_application/models/user_model.dart';
 import 'package:flutter_practice_application/screens/user_details_page.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  Home({Key? key}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
@@ -20,7 +20,10 @@ class _HomeState extends State<Home> {
         title: const Text(
           'User List',
           style: TextStyle(
-              color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -28,7 +31,6 @@ class _HomeState extends State<Home> {
         itemCount: userDetailList.length,
         itemBuilder: (context, index) {
           User user = userDetailList[index];
-
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: ListTile(
@@ -40,6 +42,30 @@ class _HomeState extends State<Home> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          // Navigate to UserDetails with selected user data
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UserDetails(user: user),
+                            ),
+                          ).then((updatedUser) {
+                            if (updatedUser != null) {
+                              // Update userDetailList
+                              setState(() {
+                                userDetailList[index] = updatedUser;
+                              });
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.edit),
+                      ),
+                    ],
+                  ),
                   Text('Email: ${user.email}'),
                   Text('Phone: ${user.phoneNumber}'),
                   Text('User Note: ${user.userNote}'),
@@ -55,7 +81,7 @@ class _HomeState extends State<Home> {
           // Navigate to UserDetails and wait for result
           final newUser = await Navigator.push<User>(
             context,
-            MaterialPageRoute(builder: (context) => const UserDetails()),
+            MaterialPageRoute(builder: (context) => UserDetails()),
           );
 
           // Add new user to the list if user is not null

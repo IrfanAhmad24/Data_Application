@@ -5,10 +5,10 @@ class User {
   String? phoneNumber;
   String? userNote;
   User({
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.phoneNumber,
-    required this.userNote,
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.phoneNumber,
+    this.userNote,
   });
 }

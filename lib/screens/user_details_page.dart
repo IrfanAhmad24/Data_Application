@@ -1,27 +1,39 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
 
 class UserDetails extends StatefulWidget {
-  const UserDetails({super.key});
+  final User? user;
+  const UserDetails({super.key, this.user});
 
   @override
   State<UserDetails> createState() => _UserDetailsState();
 }
 
-final TextEditingController firstNameController = TextEditingController();
-final TextEditingController lastNameController = TextEditingController();
-final TextEditingController emailController = TextEditingController();
-final TextEditingController pnumberController = TextEditingController();
-final TextEditingController userNoteController = TextEditingController();
-
-List<User> userDetailList = [];
-final _formKey = GlobalKey<FormState>();
-
 class _UserDetailsState extends State<UserDetails> {
-  String? firstName, lastName, email, pnumber, userNote;
+  final _formKey = GlobalKey<FormState>();
+  List<User> userDetailList = [];
+  var currentUser = User();
+
   @override
   Widget build(BuildContext context) {
+    final TextEditingController firstNameController = TextEditingController();
+    final TextEditingController lastNameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController pnumberController = TextEditingController();
+    final TextEditingController userNoteController = TextEditingController();
+
+    @override
+    void initState() {
+      super.initState();
+      firstNameController.text = widget.user?.firstName ?? '';
+      lastNameController.text = widget.user?.lastName ?? '';
+      emailController.text = widget.user?.email ?? '';
+      pnumberController.text = widget.user?.phoneNumber ?? '';
+      userNoteController.text = widget.user?.userNote ?? '';
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -37,72 +49,65 @@ class _UserDetailsState extends State<UserDetails> {
           key: _formKey,
           child: Column(
             children: [
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 27, vertical: 10),
-                    child: Container(
-                      height: 75,
-                      width: 145,
-                      child: Center(
-                        child: TextFormField(
-                            controller: firstNameController,
-                            decoration: InputDecoration(
-                                hintText: "First Name",
-                                enabled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                )),
-                            obscureText: false,
-                            onChanged: (value) {
-                              firstName = value;
-                            },
-                            validator: (String? value) {
-                              if (value!.isEmpty) {
-                                return "can't be empty";
-                              }
-                              null;
-                            }),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 27, vertical: 10),
-                    child: Container(
-                      height: 75,
-                      width: 145,
-                      child: Center(
-                        child: TextFormField(
-                            controller: lastNameController,
-                            decoration: InputDecoration(
-                                hintText: "Last Name",
-                                enabled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                )),
-                            obscureText: false,
-                            // onChanged: (value) {
-                            //   lastName = value;
-                            // },
-                            validator: (String? value) {
-                              if (value!.isEmpty) {
-                                return "can't be empty";
-                              }
-                              return null;
-                            }),
-                      ),
-                    ),
-                  ),
-                ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
+                child: TextFormField(
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                        hintText: "First Name",
+                        enabled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        )),
+                    obscureText: false,
+                    onChanged: (value) {
+                      setState(() {
+                        currentUser.firstName = value;
+                      });
+                    },
+                    validator: (String? value) {
+                      if (value!.isEmpty) {
+                        return "can't be empty";
+                      }
+                      null;
+                    }),
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
+                child: TextFormField(
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.words,
+                    controller: lastNameController,
+                    decoration: InputDecoration(
+                        hintText: "Last Name",
+                        enabled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        )),
+                    obscureText: false,
+                    onChanged: (value) {
+                      setState(() {
+                        currentUser.lastName = value;
+                      });
+                    },
+                    validator: (String? value) {
+                      if (value!.isEmpty) {
+                        return "can't be empty";
+                      }
+                      return null;
+                    }),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
                 child: TextFormField(
                     keyboardType: TextInputType.emailAddress,
-                    controller: pnumberController,
+                    controller: emailController,
                     decoration: InputDecoration(
                         suffixIcon: const Icon(Icons.email),
                         hintText: 'Email',
@@ -112,7 +117,9 @@ class _UserDetailsState extends State<UserDetails> {
                         )),
                     obscureText: false,
                     onChanged: (value) {
-                      email = value;
+                      setState(() {
+                        currentUser.email = value;
+                      });
                     },
                     validator: (String? value) {
                       if (value!.isEmpty) {
@@ -123,10 +130,10 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
                 child: TextFormField(
                     keyboardType: TextInputType.number,
-                    controller: emailController,
+                    controller: pnumberController,
                     decoration: InputDecoration(
                         suffixIcon: const Icon(Icons.numbers),
                         hintText: 'Phone Number',
@@ -136,7 +143,9 @@ class _UserDetailsState extends State<UserDetails> {
                         )),
                     obscureText: false,
                     onChanged: (value) {
-                      pnumber = value;
+                      setState(() {
+                        currentUser.phoneNumber = value;
+                      });
                     },
                     validator: (String? value) {
                       if (value!.isEmpty) {
@@ -157,8 +166,11 @@ class _UserDetailsState extends State<UserDetails> {
                       borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 10),
+                        horizontal: 15, vertical: 10),
                     child: TextFormField(
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.words,
                       enabled: true,
                       maxLines: 20,
                       controller: userNoteController,
@@ -169,7 +181,9 @@ class _UserDetailsState extends State<UserDetails> {
                       ),
                       obscureText: false,
                       onChanged: (value) {
-                        userNote = value;
+                        setState(() {
+                          currentUser.userNote = value;
+                        });
                       },
                       validator: (value) {
                         value!.isEmpty ? '' : null;
@@ -181,26 +195,13 @@ class _UserDetailsState extends State<UserDetails> {
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 GestureDetector(
                   onTap: () {
-                    // Get the text values from the controllers
-                    String firstName = firstNameController.text.trim();
-                    String lastName = lastNameController.text.trim();
-                    String email = emailController.text.trim();
-                    String phoneNumber = pnumberController.text.trim();
-                    String userNote = userNoteController.text.trim();
                     // condition if empty them showDialog
                     if (_formKey.currentState!.validate()) {
-                      User newUser = User(
-                        firstName: firstName,
-                        lastName: lastName,
-                        email: email,
-                        phoneNumber: phoneNumber,
-                        userNote: userNote,
-                      );
-
                       setState(() {
-                        userDetailList.add(newUser);
+                        userDetailList.add(currentUser);
                       });
-                      Navigator.pop(context, newUser);
+
+                      Navigator.pop(context, currentUser);
                     }
                   },
                   // add task button.
@@ -223,6 +224,25 @@ class _UserDetailsState extends State<UserDetails> {
                         ),
                       ),
                     ),
+                  ),
+                ),
+                Container(
+                  height: 50,
+                  width: 95,
+                  decoration: const BoxDecoration(color: Colors.white),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Update user details and pop screen with updated user
+                      User updatedUser = User(
+                        firstName: firstNameController.text,
+                        lastName: lastNameController.text,
+                        email: emailController.text,
+                        phoneNumber: pnumberController.text,
+                        userNote: userNoteController.text,
+                      );
+                      Navigator.pop(context, updatedUser);
+                    },
+                    child: Text('Save'),
                   ),
                 ),
               ])
