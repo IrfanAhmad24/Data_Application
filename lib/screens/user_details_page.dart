@@ -1,255 +1,232 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
 
 class UserDetails extends StatefulWidget {
   final User? user;
-  const UserDetails({super.key, this.user});
+
+  const UserDetails({Key? key, this.user}) : super(key: key);
 
   @override
-  State<UserDetails> createState() => _UserDetailsState();
+  _UserDetailsState createState() => _UserDetailsState();
 }
 
+final _formKey = GlobalKey<FormState>();
+
 class _UserDetailsState extends State<UserDetails> {
-  final _formKey = GlobalKey<FormState>();
-  List<User> userDetailList = [];
-  var currentUser = User();
+  late TextEditingController firstNameController;
+  late TextEditingController lastNameController;
+  late TextEditingController emailController;
+  late TextEditingController pnumberController;
+  late TextEditingController userNoteController;
+
+  @override
+  void initState() {
+    super.initState();
+    firstNameController =
+        TextEditingController(text: widget.user?.firstName ?? '');
+    lastNameController =
+        TextEditingController(text: widget.user?.lastName ?? '');
+    emailController = TextEditingController(text: widget.user?.email ?? '');
+    pnumberController =
+        TextEditingController(text: widget.user?.phoneNumber ?? '');
+    userNoteController =
+        TextEditingController(text: widget.user?.userNote ?? '');
+  }
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController firstNameController = TextEditingController();
-    final TextEditingController lastNameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController pnumberController = TextEditingController();
-    final TextEditingController userNoteController = TextEditingController();
-
-    @override
-    void initState() {
-      super.initState();
-      firstNameController.text = widget.user?.firstName ?? '';
-      lastNameController.text = widget.user?.lastName ?? '';
-      emailController.text = widget.user?.email ?? '';
-      pnumberController.text = widget.user?.phoneNumber ?? '';
-      userNoteController.text = widget.user?.userNote ?? '';
-    }
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: const Text(
-          'Add Task',
-          style: TextStyle(
-              color: Colors.black, fontSize: 24, fontWeight: FontWeight.w600),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          title: Text(
+            widget.user == null ? 'Add User' : 'Edit User',
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.w700, fontSize: 25),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
-                child: TextFormField(
-                    keyboardType: TextInputType.name,
-                    textInputAction: TextInputAction.next,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                        hintText: "First Name",
-                        enabled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        )),
-                    obscureText: false,
-                    onChanged: (value) {
-                      setState(() {
-                        currentUser.firstName = value;
-                      });
-                    },
-                    validator: (String? value) {
-                      if (value!.isEmpty) {
-                        return "can't be empty";
-                      }
-                      null;
-                    }),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
-                child: TextFormField(
-                    keyboardType: TextInputType.name,
-                    textInputAction: TextInputAction.next,
-                    textCapitalization: TextCapitalization.words,
-                    controller: lastNameController,
-                    decoration: InputDecoration(
-                        hintText: "Last Name",
-                        enabled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        )),
-                    obscureText: false,
-                    onChanged: (value) {
-                      setState(() {
-                        currentUser.lastName = value;
-                      });
-                    },
-                    validator: (String? value) {
-                      if (value!.isEmpty) {
-                        return "can't be empty";
-                      }
-                      return null;
-                    }),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
-                child: TextFormField(
-                    keyboardType: TextInputType.emailAddress,
-                    controller: emailController,
-                    decoration: InputDecoration(
-                        suffixIcon: const Icon(Icons.email),
-                        hintText: 'Email',
-                        enabled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        )),
-                    obscureText: false,
-                    onChanged: (value) {
-                      setState(() {
-                        currentUser.email = value;
-                      });
-                    },
-                    validator: (String? value) {
-                      if (value!.isEmpty) {
-                        return " Email can't be empty";
-                      }
-                      return null;
-                    }),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 27, vertical: 10),
-                child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    controller: pnumberController,
-                    decoration: InputDecoration(
-                        suffixIcon: const Icon(Icons.numbers),
-                        hintText: 'Phone Number',
-                        enabled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        )),
-                    obscureText: false,
-                    onChanged: (value) {
-                      setState(() {
-                        currentUser.phoneNumber = value;
-                      });
-                    },
-                    validator: (String? value) {
-                      if (value!.isEmpty) {
-                        return "Phone number can't be empty";
-                      }
-                      null;
-                    }),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                child: Container(
-                  height: 250,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: Colors.white70,
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
+        body: SingleChildScrollView(
+            child: Form(
+                key: _formKey,
+                child: Column(children: [
+                  Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
+                        horizontal: 27, vertical: 10),
                     child: TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      textInputAction: TextInputAction.next,
-                      textCapitalization: TextCapitalization.words,
-                      enabled: true,
-                      maxLines: 20,
-                      controller: userNoteController,
-                      decoration: const InputDecoration.collapsed(
-                        hintText: "Note Something",
-                        enabled: true,
-                        border: InputBorder.none,
-                      ),
-                      obscureText: false,
-                      onChanged: (value) {
-                        setState(() {
-                          currentUser.userNote = value;
-                        });
-                      },
-                      validator: (value) {
-                        value!.isEmpty ? '' : null;
-                      },
-                    ),
+                        controller: firstNameController,
+                        keyboardType: TextInputType.name,
+                        textInputAction: TextInputAction.newline,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: InputDecoration(
+                            hintText: "First Name",
+                            enabled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            )),
+                        obscureText: false,
+                        validator: (String? value) {
+                          if (value!.isEmpty) {
+                            return "can't be empty";
+                          }
+                          null;
+                        }),
                   ),
-                ),
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                GestureDetector(
-                  onTap: () {
-                    // condition if empty them showDialog
-                    if (_formKey.currentState!.validate()) {
-                      setState(() {
-                        userDetailList.add(currentUser);
-                      });
-
-                      Navigator.pop(context, currentUser);
-                    }
-                  },
-                  // add task button.
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 27, vertical: 10),
+                    child: TextFormField(
+                        keyboardType: TextInputType.name,
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.words,
+                        controller: lastNameController,
+                        decoration: InputDecoration(
+                            hintText: "Last Name",
+                            enabled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            )),
+                        obscureText: false,
+                        validator: (String? value) {
+                          if (value!.isEmpty) {
+                            return "can't be empty";
+                          }
+                          return null;
+                        }),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 27, vertical: 10),
+                    child: TextFormField(
+                        keyboardType: TextInputType.emailAddress,
+                        controller: emailController,
+                        decoration: InputDecoration(
+                            suffixIcon: const Icon(Icons.email),
+                            hintText: 'Email',
+                            enabled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            )),
+                        obscureText: false,
+                        validator: (String? value) {
+                          if (value!.isEmpty) {
+                            return " Email can't be empty";
+                          }
+                          return null;
+                        }),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 27, vertical: 10),
+                    child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        controller: pnumberController,
+                        decoration: InputDecoration(
+                            suffixIcon: const Icon(Icons.numbers),
+                            hintText: 'Phone Number',
+                            enabled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            )),
+                        obscureText: false,
+                        validator: (String? value) {
+                          if (value!.isEmpty) {
+                            return "Phone number can't be empty";
+                          }
+                          null;
+                        }),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 20),
                     child: Container(
-                      height: 50,
-                      width: 95,
+                      height: 250,
+                      width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        color: Colors.purple,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Add',
-                          style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w400),
+                          color: Colors.white70,
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        child: TextFormField(
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.next,
+                          textCapitalization: TextCapitalization.words,
+                          enabled: true,
+                          maxLines: 20,
+                          controller: userNoteController,
+                          decoration: const InputDecoration.collapsed(
+                            hintText: "Note Something",
+                            enabled: true,
+                            border: InputBorder.none,
+                          ),
+                          obscureText: false,
+                          validator: (value) {
+                            value!.isEmpty ? '' : null;
+                          },
                         ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  height: 50,
-                  width: 95,
-                  decoration: const BoxDecoration(color: Colors.white),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Update user details and pop screen with updated user
-                      User updatedUser = User(
-                        firstName: firstNameController.text,
-                        lastName: lastNameController.text,
-                        email: emailController.text,
-                        phoneNumber: pnumberController.text,
-                        userNote: userNoteController.text,
-                      );
-                      Navigator.pop(context, updatedUser);
-                    },
-                    child: Text('Save'),
-                  ),
-                ),
-              ])
-            ],
-          ),
-        ),
-      ),
-    );
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    GestureDetector(
+                        onTap: () {
+                          // Validate form fields
+                          if (widget.user == null) {
+                            // Add new user
+                            User newUser = User(
+                              firstName: firstNameController.text,
+                              lastName: lastNameController.text,
+                              email: emailController.text,
+                              phoneNumber: pnumberController.text,
+                              userNote: userNoteController.text,
+                            );
+                            Navigator.pop(
+                                context, newUser); // Return new user object
+                          } else {
+                            // Update existing user
+                            User updatedUser = User(
+                              firstName: firstNameController.text,
+                              lastName: lastNameController.text,
+                              email: emailController.text,
+                              phoneNumber: pnumberController.text,
+                              userNote: userNoteController.text,
+                            );
+                            Navigator.pop(context,
+                                updatedUser); // Return updated user object
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            height: 40,
+                            width: 95,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(23),
+                              color: Colors.deepPurple,
+                            ),
+                            child: Center(
+                                child: Text(
+                              widget.user == null ? 'Add' : 'Update',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 19),
+                            )),
+                          ),
+                        )),
+                  ]),
+                ]))));
+  }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    pnumberController.dispose();
+    userNoteController.dispose();
+    super.dispose();
   }
 }

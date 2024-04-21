@@ -28,53 +28,63 @@ class _HomeState extends State<Home> {
         centerTitle: true,
       ),
       body: ListView.builder(
-        itemCount: userDetailList.length,
-        itemBuilder: (context, index) {
-          User user = userDetailList[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: ListTile(
-              title: Text(
-                '${user.firstName} ${user.lastName}',
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          // Navigate to UserDetails with selected user data
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => UserDetails(user: user),
+          itemCount: userDetailList.length,
+          itemBuilder: (context, index) {
+            User user = userDetailList[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Container(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${user.firstName} ${user.lastName}',
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                setState(() {});
+                              },
+                              icon: Icon(Icons.delete),
                             ),
-                          ).then((updatedUser) {
-                            if (updatedUser != null) {
-                              // Update userDetailList
-                              setState(() {
-                                userDetailList[index] = updatedUser;
-                              });
-                            }
-                          });
-                        },
-                        icon: const Icon(Icons.edit),
-                      ),
-                    ],
-                  ),
-                  Text('Email: ${user.email}'),
-                  Text('Phone: ${user.phoneNumber}'),
-                  Text('User Note: ${user.userNote}'),
-                ],
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        UserDetails(user: user),
+                                  ),
+                                ).then((updatedUser) {
+                                  if (updatedUser != null) {
+                                    // Update userDetailList
+                                    setState(() {
+                                      userDetailList[index] = updatedUser;
+                                    });
+                                  }
+                                });
+                              },
+                              icon: const Icon(Icons.edit),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Text('Email: ${user.email}'),
+                    Text('Phone: ${user.phoneNumber}'),
+                    Text('User Note: ${user.userNote}'),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          }),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
         onPressed: () async {
