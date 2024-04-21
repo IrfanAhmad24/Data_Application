@@ -50,7 +50,9 @@ class _HomeState extends State<Home> {
                           children: [
                             IconButton(
                               onPressed: () {
-                                setState(() {});
+                                setState(() {
+                                  _deleteUser(index);
+                                });
                               },
                               icon: Icon(Icons.delete),
                             ),
@@ -107,5 +109,11 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  void _deleteUser(int index) {
+    setState(() {
+      userDetailList.removeAt(index); // Remove user at specified index
+    });
   }
 }
