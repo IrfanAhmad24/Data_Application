@@ -219,14 +219,14 @@ class _UserDetailsState extends State<UserDetails> {
                   ]),
                 ]))));
   }
-
-  @override
-  void dispose() {
-    firstNameController.dispose();
-    lastNameController.dispose();
-    emailController.dispose();
-    pnumberController.dispose();
-    userNoteController.dispose();
-    super.dispose();
-  }
 }
+//   @override
+//   void dispose() {
+//     firstNameController.dispose();
+//     lastNameController.dispose();
+//     emailController.dispose();
+//     pnumberController.dispose();
+//     userNoteController.dispose();
+//     super.dispose();
+//   }
+// }
