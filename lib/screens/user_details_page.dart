@@ -11,15 +11,13 @@ class UserDetails extends StatefulWidget {
   _UserDetailsState createState() => _UserDetailsState();
 }
 
-final _formKey = GlobalKey<FormState>();
-
 class _UserDetailsState extends State<UserDetails> {
   late TextEditingController firstNameController;
   late TextEditingController lastNameController;
   late TextEditingController emailController;
   late TextEditingController pnumberController;
   late TextEditingController userNoteController;
-
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -67,7 +65,7 @@ class _UserDetailsState extends State<UserDetails> {
                         obscureText: false,
                         validator: (String? value) {
                           if (value!.isEmpty) {
-                            return "can't be empty";
+                            return "First name can't be empty";
                           }
                           null;
                         }),
@@ -220,13 +218,3 @@ class _UserDetailsState extends State<UserDetails> {
                 ]))));
   }
 }
-//   @override
-//   void dispose() {
-//     firstNameController.dispose();
-//     lastNameController.dispose();
-//     emailController.dispose();
-//     pnumberController.dispose();
-//     userNoteController.dispose();
-//     super.dispose();
-//   }
-// }

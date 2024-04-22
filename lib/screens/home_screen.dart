@@ -34,7 +34,7 @@ class _HomeState extends State<Home> {
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: Container(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -113,7 +113,7 @@ class _HomeState extends State<Home> {
 
   void _deleteUser(int index) {
     setState(() {
-      userDetailList.removeAt(index); // Remove user at specified index
+      userDetailList.removeAt(index); // Remove user at specific index
     });
   }
 }
