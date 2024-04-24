@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_practice_application/screens/home_screen.dart';
-import 'package:flutter_practice_application/screens/user_details_page.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());

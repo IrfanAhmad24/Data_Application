@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
 import 'package:flutter_practice_application/screens/user_details_page.dart';
 
@@ -50,11 +51,9 @@ class _HomeState extends State<Home> {
                           children: [
                             IconButton(
                               onPressed: () {
-                                setState(() {
-                                  _deleteUser(index);
-                                });
+                                _deleteUser(index);
                               },
-                              icon: Icon(Icons.delete),
+                              icon: const Icon(Icons.delete),
                             ),
                             IconButton(
                               onPressed: () {
@@ -66,7 +65,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ).then((updatedUser) {
                                   if (updatedUser != null) {
-                                    // Update userDetailList
+                                    // Update userDetailList with the updated user
                                     setState(() {
                                       userDetailList[index] = updatedUser;
                                     });
@@ -81,6 +80,8 @@ class _HomeState extends State<Home> {
                     ),
                     Text('Email: ${user.email}'),
                     Text('Phone: ${user.phoneNumber}'),
+                    Text('Date of Birth:${dateController.text}'),
+                    Text('Gender:${user.gender}'),
                     Text('User Note: ${user.userNote}'),
                   ],
                 ),

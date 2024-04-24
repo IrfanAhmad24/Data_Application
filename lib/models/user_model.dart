@@ -4,11 +4,14 @@ class User {
   String? email;
   String? phoneNumber;
   String? userNote;
-  User({
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.phoneNumber,
-    this.userNote,
-  });
+  DateTime? dateOfBirth;
+  String? gender;
+  User(
+      {this.firstName,
+      this.lastName,
+      this.email,
+      this.phoneNumber,
+      this.userNote,
+      this.dateOfBirth,
+      this.gender});
 }
