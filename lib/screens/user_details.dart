@@ -1,21 +1,27 @@
+import 'dart:js_util';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
-class MobileUserDetailsPage extends StatefulWidget {
+class UserDetailsPage extends StatefulWidget {
   final User? user;
+  final bool showDeleteIcon;
 
-  const MobileUserDetailsPage({Key? key, this.user}) : super(key: key);
+  const UserDetailsPage({Key? key, this.user, this.showDeleteIcon = false})
+      : super(key: key);
 
   @override
-  _MobileUserDetailsPageState createState() => _MobileUserDetailsPageState();
+  _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
 TextEditingController dateController = TextEditingController();
 
-class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
+class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   void initState() {
     super.initState();
@@ -24,7 +30,7 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
   }
 
   late User currentUser;
-  // String? selectedGender;
+
   List<String> genderOption = ['Male', 'Female', 'Other'];
   final _formKey = GlobalKey<FormState>();
   bool _isFocused = false;
@@ -42,13 +48,14 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                       snap: true,
                       backgroundColor: Colors.transparent,
                       foregroundColor: Colors.white,
-                      title: Text(
-                        widget.user == null ? 'Add User' : 'Edit User',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 25),
-                      ),
+                      title:
+                          Text(widget.user == null ? 'Add User' : 'Edit User',
+                              style: GoogleFonts.archivo(
+                                textStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 26),
+                              )),
                       centerTitle: true,
                     ),
                   ],
@@ -57,8 +64,12 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                       key: _formKey,
                       child: Column(children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 27, vertical: 10),
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width < 600
+                                      ? 30
+                                      : 250,
+                              vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
                               cursorColor: const Color(0xff76ABAE),
@@ -66,7 +77,9 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               textInputAction: TextInputAction.newline,
                               textCapitalization: TextCapitalization.words,
                               decoration: InputDecoration(
-                                  hintText: "First Name",
+                                  labelText: "First Name",
+                                  labelStyle:
+                                      const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
                                     borderSide: const BorderSide(
@@ -96,8 +109,12 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               }),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 27, vertical: 10),
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width < 600
+                                      ? 30
+                                      : 250,
+                              vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
                               cursorColor: const Color(0xff76ABAE),
@@ -105,7 +122,9 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               textInputAction: TextInputAction.next,
                               textCapitalization: TextCapitalization.words,
                               decoration: InputDecoration(
-                                  hintText: "Last Name",
+                                  labelText: "Last Name",
+                                  labelStyle:
+                                      const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
                                     borderSide: const BorderSide(
@@ -135,8 +154,12 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               }),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width < 600
+                                      ? 30
+                                      : 250,
+                              vertical: 10),
                           child: TextFormField(
                             style: const TextStyle(color: Colors.white),
                             cursorColor: const Color(0xff76ABAE),
@@ -159,7 +182,8 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               }
                             },
                             decoration: InputDecoration(
-                              hintText: 'Date of Birth',
+                              labelText: 'Date of Birth',
+                              labelStyle: const TextStyle(color: Colors.white),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 borderSide: const BorderSide(
@@ -175,9 +199,14 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                           ),
                         ),
                         DropdownButtonFormField(
+                            value: currentUser.gender,
                             dropdownColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 10),
+                            padding: EdgeInsets.symmetric(
+                                horizontal:
+                                    MediaQuery.of(context).size.width < 600
+                                        ? 30
+                                        : 250,
+                                vertical: 10),
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                     borderSide: const BorderSide(
@@ -199,18 +228,26 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               );
                             }).toList(),
                             onChanged: (value) {
-                              currentUser.gender = value;
+                              setState(() {
+                                currentUser.gender = value;
+                              });
                             }),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width < 600
+                                      ? 30
+                                      : 250,
+                              vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
                               cursorColor: const Color(0xff76ABAE),
                               keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(
                                   suffixIcon: const Icon(Icons.email),
-                                  hintText: 'Email',
+                                  labelText: 'Email',
+                                  labelStyle:
+                                      const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
                                     borderSide: const BorderSide(
@@ -240,15 +277,21 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               }),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width < 600
+                                      ? 30
+                                      : 250,
+                              vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
                               keyboardType: TextInputType.number,
                               cursorColor: const Color(0xff76ABAE),
                               decoration: InputDecoration(
                                   suffixIcon: const Icon(Icons.numbers),
-                                  hintText: 'Phone Number',
+                                  labelText: 'Phone Number',
+                                  labelStyle:
+                                      const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
 
@@ -281,8 +324,12 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                               }),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 20),
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width < 600
+                                      ? 30
+                                      : 250,
+                              vertical: 20),
                           child: Container(
                             height: 250,
                             width: double.infinity,
@@ -300,12 +347,9 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                                 keyboardType: TextInputType.multiline,
                                 enabled: true,
                                 maxLines: 20,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   hintText: "Note Something...",
-                                  hintStyle: TextStyle(
-                                      color: _isFocused
-                                          ? Colors.blue
-                                          : Colors.white),
+                                  hintStyle: TextStyle(color: Colors.white),
                                   enabled: true,
                                   border: InputBorder.none,
                                 ),
@@ -341,21 +385,24 @@ class _MobileUserDetailsPageState extends State<MobileUserDetailsPage> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(
-                                      height: 40,
-                                      width: 95,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(23),
-                                        color: const Color(0xff76ABAE),
-                                      ),
-                                      child: Center(
+                                        height: 40,
+                                        width: 95,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(23),
+                                          color: const Color(0xff76ABAE),
+                                        ),
+                                        child: Center(
                                           child: Text(
-                                        widget.user == null ? 'Add' : 'Update',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 19),
-                                      )),
-                                    ),
+                                            widget.user == null
+                                                ? 'Add'
+                                                : 'Update',
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 19),
+                                          ),
+                                        )),
                                   )),
                             ]),
                       ])))),
