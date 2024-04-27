@@ -4,35 +4,30 @@ import 'package:flutter/services.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
 import 'package:intl/intl.dart';
 
-class UserDetails extends StatefulWidget {
+class WebUserPage extends StatefulWidget {
   final User? user;
 
-  const UserDetails({Key? key, this.user}) : super(key: key);
+  const WebUserPage({Key? key, this.user}) : super(key: key);
 
   @override
-  _UserDetailsState createState() => _UserDetailsState();
+  _WebUserPageState createState() => _WebUserPageState();
 }
 
-TextEditingController dateController = TextEditingController();
+TextEditingController webdateController = TextEditingController();
 
-@override
-void dispose() {
-  // Dispose the controller when not needed
-  dateController.dispose();
-}
+class _WebUserPageState extends State<WebUserPage> {
+  @override
+  void initState() {
+    super.initState();
+    currentUser = widget.user ?? User();
+    webdateController = TextEditingController(); // Initialize the controller
+  }
 
-class _UserDetailsState extends State<UserDetails> {
   late User currentUser;
   // String? selectedGender;
   List<String> genderOption = ['Male', 'Female', 'Other'];
   final _formKey = GlobalKey<FormState>();
   bool _isFocused = false;
-  Color textColor = Colors.black;
-  @override
-  void initState() {
-    super.initState();
-    currentUser = widget.user ?? User();
-  }
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -61,91 +56,113 @@ class _UserDetailsState extends State<UserDetails> {
                   child: Form(
                       key: _formKey,
                       child: Column(children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 27, vertical: 10),
-                          child: TextFormField(
-                              style: const TextStyle(color: Colors.white),
-                              cursorColor: const Color(0xff76ABAE),
-                              keyboardType: TextInputType.name,
-                              textInputAction: TextInputAction.newline,
-                              textCapitalization: TextCapitalization.words,
-                              decoration: InputDecoration(
-                                  hintText: "First Name",
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xff76ABAE),
-                                    ), // Border color when focused
-                                  ),
-                                  hintStyle: TextStyle(
-                                      color: _isFocused
-                                          ? Colors.blue
-                                          : Colors.white),
-                                  enabled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  )),
-                              obscureText: false,
-                              initialValue: currentUser.firstName ?? '',
-                              onChanged: (value) {
-                                setState(() {
-                                  currentUser.firstName = value;
-                                });
-                              },
-                              validator: (String? value) {
-                                if (value!.isEmpty) {
-                                  return "First name can't be empty";
-                                }
-                                null;
-                              }),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 27, vertical: 10),
+                              child: Container(
+                                height: 55,
+                                width: 220,
+                                child: TextFormField(
+                                    style: const TextStyle(color: Colors.white),
+                                    cursorColor: const Color(0xff76ABAE),
+                                    keyboardType: TextInputType.name,
+                                    textInputAction: TextInputAction.newline,
+                                    textCapitalization:
+                                        TextCapitalization.words,
+                                    decoration: InputDecoration(
+                                        hintText: "First Name",
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xff76ABAE),
+                                          ), // Border color when focused
+                                        ),
+                                        hintStyle: TextStyle(
+                                            color: _isFocused
+                                                ? Colors.blue
+                                                : Colors.white),
+                                        enabled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        )),
+                                    obscureText: false,
+                                    initialValue: currentUser.firstName ?? '',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        currentUser.firstName = value;
+                                      });
+                                    },
+                                    validator: (String? value) {
+                                      if (value!.isEmpty) {
+                                        return "First name can't be empty";
+                                      }
+                                      null;
+                                    }),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 12,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 27, vertical: 10),
+                              child: Container(
+                                height: 55,
+                                width: 220,
+                                child: TextFormField(
+                                    style: const TextStyle(color: Colors.white),
+                                    cursorColor: const Color(0xff76ABAE),
+                                    keyboardType: TextInputType.name,
+                                    textInputAction: TextInputAction.next,
+                                    textCapitalization:
+                                        TextCapitalization.words,
+                                    decoration: InputDecoration(
+                                        hintText: "Last Name",
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xff76ABAE),
+                                          ), // Border color when focused
+                                        ),
+                                        hintStyle: TextStyle(
+                                            color: _isFocused
+                                                ? Colors.blue
+                                                : Colors.white),
+                                        enabled: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        )),
+                                    obscureText: false,
+                                    initialValue: currentUser.lastName ?? '',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        currentUser.lastName = value;
+                                      });
+                                    },
+                                    validator: (String? value) {
+                                      if (value!.isEmpty) {
+                                        return "Last name can't be empty";
+                                      }
+                                      return null;
+                                    }),
+                              ),
+                            ),
+                          ],
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 27, vertical: 10),
+                              horizontal: 385, vertical: 10),
                           child: TextFormField(
-                              style: const TextStyle(color: Colors.white),
-                              cursorColor: const Color(0xff76ABAE),
-                              keyboardType: TextInputType.name,
-                              textInputAction: TextInputAction.next,
-                              textCapitalization: TextCapitalization.words,
-                              decoration: InputDecoration(
-                                  hintText: "Last Name",
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xff76ABAE),
-                                    ), // Border color when focused
-                                  ),
-                                  hintStyle: TextStyle(
-                                      color: _isFocused
-                                          ? Colors.blue
-                                          : Colors.white),
-                                  enabled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  )),
-                              obscureText: false,
-                              initialValue: currentUser.lastName ?? '',
-                              onChanged: (value) {
-                                setState(() {
-                                  currentUser.lastName = value;
-                                });
-                              },
-                              validator: (String? value) {
-                                if (value!.isEmpty) {
-                                  return "Last name can't be empty";
-                                }
-                                return null;
-                              }),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 27, vertical: 10),
-                          child: TextFormField(
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                             cursorColor: const Color(0xff76ABAE),
-                            controller: dateController,
+                            controller: webdateController,
                             keyboardType: TextInputType.datetime,
                             readOnly: true,
                             onTap: () async {
@@ -157,8 +174,9 @@ class _UserDetailsState extends State<UserDetails> {
                               );
                               if (pickedDate != null) {
                                 setState(() {
-                                  dateController.text = DateFormat('yyy-MM-dd')
-                                      .format(pickedDate);
+                                  webdateController.text =
+                                      DateFormat('yyy-MM-dd')
+                                          .format(pickedDate);
                                   currentUser.dateOfBirth = pickedDate;
                                 });
                               }
@@ -180,10 +198,14 @@ class _UserDetailsState extends State<UserDetails> {
                           ),
                         ),
                         DropdownButtonFormField(
+                            dropdownColor: Colors.black,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 27, vertical: 10),
+                                horizontal: 385, vertical: 10),
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: Color(0xff76ABAE),
+                                    ),
                                     borderRadius: BorderRadius.circular(20))),
                             hint: Text(
                               'Gender',
@@ -204,7 +226,7 @@ class _UserDetailsState extends State<UserDetails> {
                             }),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 27, vertical: 10),
+                              horizontal: 385, vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
                               cursorColor: const Color(0xff76ABAE),
@@ -242,9 +264,9 @@ class _UserDetailsState extends State<UserDetails> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 27, vertical: 10),
+                              horizontal: 385, vertical: 10),
                           child: TextFormField(
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                               keyboardType: TextInputType.number,
                               cursorColor: const Color(0xff76ABAE),
                               decoration: InputDecoration(
@@ -283,7 +305,7 @@ class _UserDetailsState extends State<UserDetails> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 20),
+                              horizontal: 350, vertical: 20),
                           child: Container(
                             height: 250,
                             width: double.infinity,
@@ -366,4 +388,10 @@ class _UserDetailsState extends State<UserDetails> {
                       ])))),
         ),
       );
+  @override
+  void dispose() {
+    // Dispose the controller when not needed
+    webdateController.dispose();
+    super.dispose();
+  }
 }

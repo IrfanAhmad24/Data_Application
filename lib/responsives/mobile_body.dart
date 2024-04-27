@@ -1,21 +1,21 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
+import 'package:flutter_practice_application/responsives/mobilr_user.dart';
+import 'package:flutter_practice_application/responsives/web_user.dart';
 
-import 'package:flutter_practice_application/screens/user_details_page.dart';
-
-class MyMobileBody extends StatefulWidget {
-  MyMobileBody({Key? key}) : super(key: key);
+class Mobile_Home extends StatefulWidget {
+  const Mobile_Home({super.key});
 
   @override
-  _MyMobileBodyState createState() => _MyMobileBodyState();
+  State<Mobile_Home> createState() => _Mobile_HomeState();
 }
 
 List<User> userDetailList = [];
 bool isVisible = false;
 
-class _MyMobileBodyState extends State<MyMobileBody> {
+class _Mobile_HomeState extends State<Mobile_Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,11 +54,15 @@ class _MyMobileBodyState extends State<MyMobileBody> {
               itemCount: userDetailList.length,
               itemBuilder: (context, index) {
                 User user = userDetailList[index];
-                return Card(
-                  color: Colors.transparent,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xff76ABAE),
+                        )),
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +94,7 @@ class _MyMobileBodyState extends State<MyMobileBody> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            UserDetails(user: user),
+                                            MobileUserDetailsPage(user: user),
                                       ),
                                     ).then((updatedUser) {
                                       if (updatedUser != null) {
@@ -164,7 +168,7 @@ class _MyMobileBodyState extends State<MyMobileBody> {
             // Navigate to UserDetails and wait for result
             final newUser = await Navigator.push<User>(
               context,
-              MaterialPageRoute(builder: (context) => UserDetails()),
+              MaterialPageRoute(builder: (context) => MobileUserDetailsPage()),
             );
 
             // Add new user to the list if user is not null

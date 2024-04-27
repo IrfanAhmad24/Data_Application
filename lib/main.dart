@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_practice_application/screens/home.dart';
 
-import 'package:flutter_practice_application/screens/mobile_body.dart';
+import 'package:flutter_practice_application/responsives/mobile_body.dart';
 
 void main() {
   runApp(const MyApp());
