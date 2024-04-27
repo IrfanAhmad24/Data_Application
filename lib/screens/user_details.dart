@@ -161,6 +161,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                       : 250,
                               vertical: 10),
                           child: TextFormField(
+                            initialValue: currentUser.dateOfBirth != null
+                                ? DateFormat('yyy-MM-dd')
+                                    .format(currentUser.dateOfBirth!)
+                                : null, // Set initial value to user's date of birth if available ,
                             style: const TextStyle(color: Colors.white),
                             cursorColor: const Color(0xff76ABAE),
                             controller: dateController,
@@ -209,9 +213,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 vertical: 10),
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                      color: Color(0xff76ABAE),
-                                    ),
+                                    borderSide: BorderSide(
+                                        color: _isFocused
+                                            ? Color(0xff76ABAE)
+                                            : Colors.white),
                                     borderRadius: BorderRadius.circular(20))),
                             hint: Text(
                               'Gender',
@@ -219,8 +224,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   color:
                                       _isFocused ? Colors.blue : Colors.white),
                             ),
-                            style: const TextStyle(color: Colors.white),
-                            // value: selectedGender,
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
                             items: genderOption.map((gender) {
                               return DropdownMenuItem<String>(
                                 value: gender,
