@@ -54,7 +54,6 @@ class _HomeState extends State<Home> {
   }
 
   Widget mobile() {
-    final currentWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 38, 42, 49),
       appBar: AppBar(
@@ -95,13 +94,14 @@ class _HomeState extends State<Home> {
                   });
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 5),
                   child: Container(
                     decoration: BoxDecoration(
                         color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(5),
                         border: Border.all(
-                          color: const Color(0xff76ABAE),
+                          color: Colors.white,
                         )),
                     padding: const EdgeInsets.all(8.0),
                     child: Padding(
@@ -113,13 +113,13 @@ class _HomeState extends State<Home> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                '${user.firstName} ${user.lastName}',
-                                style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
+                              Text('${user.firstName} ${user.lastName}',
+                                  style: GoogleFonts.archivo(
+                                    textStyle: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  )),
                               Text(
                                 'Birth: ${dateController.text}',
                                 style: const TextStyle(color: Colors.white),
@@ -127,7 +127,7 @@ class _HomeState extends State<Home> {
                             ],
                           ),
                           const SizedBox(
-                            height: 3,
+                            height: 6,
                           ),
                           Text(
                             'Email: ${user.email}',
@@ -216,15 +216,12 @@ class _HomeState extends State<Home> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(15.0),
-                  border: Border.all(
-                    color: const Color(0xff76ABAE),
-                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(color: Colors.white),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -241,7 +238,9 @@ class _HomeState extends State<Home> {
                           ),
                           Text(
                             'Birth: ${dateController.text}',
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -332,14 +331,13 @@ class _HomeState extends State<Home> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(15.0),
-                  border: Border.all(
-                    color: const Color(0xff76ABAE),
-                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(color: Colors.white),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
+                    horizontal: 8,
+                    vertical: 12,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

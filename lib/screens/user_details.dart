@@ -68,7 +68,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               horizontal:
                                   MediaQuery.of(context).size.width < 600
                                       ? 30
-                                      : 250,
+                                      : 200,
                               vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
@@ -81,7 +81,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   labelStyle:
                                       const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
                                     borderSide: const BorderSide(
                                       color: Color(0xff76ABAE),
                                     ), // Border color when focused
@@ -92,7 +92,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                           : Colors.white),
                                   enabled: true,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
                                   )),
                               obscureText: false,
                               initialValue: currentUser.firstName ?? '',
@@ -113,7 +113,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               horizontal:
                                   MediaQuery.of(context).size.width < 600
                                       ? 30
-                                      : 250,
+                                      : 200,
                               vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
@@ -126,7 +126,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   labelStyle:
                                       const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
                                     borderSide: const BorderSide(
                                       color: Color(0xff76ABAE),
                                     ), // Border color when focused
@@ -137,7 +137,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                           : Colors.white),
                                   enabled: true,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
                                   )),
                               obscureText: false,
                               initialValue: currentUser.lastName ?? '',
@@ -158,13 +158,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               horizontal:
                                   MediaQuery.of(context).size.width < 600
                                       ? 30
-                                      : 250,
+                                      : 200,
                               vertical: 10),
                           child: TextFormField(
-                            initialValue: currentUser.dateOfBirth != null
-                                ? DateFormat('yyy-MM-dd')
-                                    .format(currentUser.dateOfBirth!)
-                                : null, // Set initial value to user's date of birth if available ,
                             style: const TextStyle(color: Colors.white),
                             cursorColor: const Color(0xff76ABAE),
                             controller: dateController,
@@ -189,7 +185,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               labelText: 'Date of Birth',
                               labelStyle: const TextStyle(color: Colors.white),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(8.0),
                                 borderSide: const BorderSide(
                                   color: Color(0xff76ABAE),
                                 ), // Border color when focused
@@ -198,7 +194,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   color:
                                       _isFocused ? Colors.blue : Colors.white),
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20)),
+                                  borderRadius: BorderRadius.circular(8.0)),
                             ),
                           ),
                         ),
@@ -209,7 +205,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 horizontal:
                                     MediaQuery.of(context).size.width < 600
                                         ? 30
-                                        : 250,
+                                        : 200,
                                 vertical: 10),
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -217,7 +213,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                         color: _isFocused
                                             ? Color(0xff76ABAE)
                                             : Colors.white),
-                                    borderRadius: BorderRadius.circular(20))),
+                                    borderRadius: BorderRadius.circular(8.0))),
                             hint: Text(
                               'Gender',
                               style: TextStyle(
@@ -243,7 +239,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               horizontal:
                                   MediaQuery.of(context).size.width < 600
                                       ? 30
-                                      : 250,
+                                      : 200,
                               vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
@@ -255,7 +251,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   labelStyle:
                                       const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
                                     borderSide: const BorderSide(
                                       color: Color(0xff76ABAE),
                                     ), // Border color when focused
@@ -266,7 +262,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                           : Colors.white),
                                   enabled: true,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
                                   )),
                               initialValue: currentUser.email ?? '',
                               onChanged: (value) {
@@ -287,7 +283,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               horizontal:
                                   MediaQuery.of(context).size.width < 600
                                       ? 30
-                                      : 250,
+                                      : 200,
                               vertical: 10),
                           child: TextFormField(
                               style: const TextStyle(color: Colors.white),
@@ -299,7 +295,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   labelStyle:
                                       const TextStyle(color: Colors.white),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
 
                                     borderSide: const BorderSide(
                                       color: Color(0xff76ABAE),
@@ -311,7 +307,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                           : Colors.white),
                                   enabled: true,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8.0),
                                   )),
                               obscureText: false,
                               initialValue: currentUser.phoneNumber ?? '',
@@ -334,7 +330,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               horizontal:
                                   MediaQuery.of(context).size.width < 600
                                       ? 30
-                                      : 250,
+                                      : 200,
                               vertical: 20),
                           child: Container(
                             height: 250,
@@ -343,7 +339,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 border: Border.all(
                                   color: Colors.grey.shade800,
                                 ),
-                                borderRadius: BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(8.0)),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 15, vertical: 10),
@@ -352,7 +348,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 cursorColor: const Color(0xff76ABAE),
                                 keyboardType: TextInputType.multiline,
                                 enabled: true,
-                                maxLines: 20,
+                                maxLines: null,
                                 decoration: const InputDecoration(
                                   hintText: "Note Something...",
                                   hintStyle: TextStyle(color: Colors.white),
