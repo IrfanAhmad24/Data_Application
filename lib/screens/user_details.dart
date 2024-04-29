@@ -172,6 +172,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 initialDate: DateTime.now(),
                                 firstDate: DateTime(1900),
                                 lastDate: DateTime.now(),
+                                builder: (context, child) => Theme(
+                                  data: ThemeData.dark(),
+                                  child: child ?? Container(),
+                                ),
                               );
                               if (pickedDate != null) {
                                 setState(() {
@@ -208,6 +212,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                         : 200,
                                 vertical: 10),
                             decoration: InputDecoration(
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      color: Color(
+                                          0xff76ABAE)), // Border color when focused
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
                                 border: OutlineInputBorder(
                                     borderSide: BorderSide(
                                         color: _isFocused
