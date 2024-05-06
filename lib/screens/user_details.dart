@@ -1,36 +1,47 @@
-import 'dart:js_util';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_builder/responsive_builder.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserDetailsPage extends StatefulWidget {
   final User? user;
-  final bool showDeleteIcon;
-
-  const UserDetailsPage({Key? key, this.user, this.showDeleteIcon = false})
-      : super(key: key);
+  bool isEditButton;
+  String? id;
+  bool icon;
+  UserDetailsPage({
+    Key? key,
+    this.user,
+    this.id,
+    this.icon = false,
+    this.isEditButton = false,
+  }) : super(key: key);
 
   @override
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
-TextEditingController dateController = TextEditingController();
+TextEditingController? dateController;
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   void initState() {
     super.initState();
     currentUser = widget.user ?? User();
-    dateController = TextEditingController(); // Initialize the controller
+    // Initialize the controller
+    dateController = TextEditingController(
+        text: currentUser.dateOfBirth != null
+            ? DateFormat('yyyy-MM-dd').format(currentUser.dateOfBirth!)
+            : '');
   }
 
+  bool isLoading = false;
   late User currentUser;
 
+  CollectionReference firestore =
+      FirebaseFirestore.instance.collection('users');
   List<String> genderOption = ['Male', 'Female', 'Other'];
   final _formKey = GlobalKey<FormState>();
   bool _isFocused = false;
@@ -44,6 +55,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
               floatHeaderSlivers: true,
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                     SliverAppBar(
+                      actions: [
+                        if (widget.icon)
+                          IconButton(
+                              onPressed: () {
+                                if (widget.icon) deleteUser();
+                              },
+                              icon: const Icon(Icons.delete))
+                      ],
                       floating: true,
                       snap: true,
                       backgroundColor: Colors.transparent,
@@ -179,7 +198,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               );
                               if (pickedDate != null) {
                                 setState(() {
-                                  dateController.text = DateFormat('yyy-MM-dd')
+                                  dateController!.text = DateFormat('yyy-MM-dd')
                                       .format(pickedDate);
                                   currentUser.dateOfBirth = pickedDate;
                                 });
@@ -383,47 +402,126 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           ),
                         ),
                         Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (!widget
+                                .isEditButton) // Show the update button only in edit mode
                               GestureDetector(
-                                  onTap: () {
-                                    // Validate form fields
-                                    if (_formKey.currentState!.validate()) {
-                                      // Handle saving or updating user data here
-                                      Navigator.pop(context,
-                                          currentUser); // Return updated user object
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                        height: 40,
-                                        width: 95,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(23),
-                                          color: const Color(0xff76ABAE),
+                                onTap: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    updateUserData();
+                                  }
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height: 40,
+                                    width: 95,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(23),
+                                      color: const Color(0xff76ABAE),
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'Update',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 19,
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            widget.user == null
-                                                ? 'Add'
-                                                : 'Update',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 19),
-                                          ),
-                                        )),
-                                  )),
-                            ]),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (widget.isEditButton)
+                              GestureDetector(
+                                onTap: () async {
+                                  // Validate form fields
+                                  if (_formKey.currentState!.validate()) {
+                                    storeUserData();
+                                  }
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height: 40,
+                                    width: 95,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(23),
+                                      color: const Color(0xff76ABAE),
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'Add',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 19,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
                       ])))),
         ),
       );
-  @override
-  void dispose() {
-    // Dispose the controller when not needed
-    dateController.dispose();
-    super.dispose();
+
+  storeUserData() async {
+    String id = DateTime.now().millisecondsSinceEpoch.toString();
+    currentUser.id = id;
+    await firestore
+        .doc(currentUser.id)
+        .set({
+          'firstName': currentUser.firstName,
+          'lastName': currentUser.lastName,
+          'email': currentUser.email,
+          'gender': currentUser.gender,
+          'userNote': currentUser.userNote,
+          'birth': dateController!.text,
+          'phoneNumber': currentUser.phoneNumber,
+          'id': currentUser.id,
+        })
+        .then((value) => {
+              Navigator.pop(context, currentUser),
+            })
+        .onError((error, stackTrace) => {print('Error:${error.toString()}')});
+  }
+
+  updateUserData() async {
+    await firestore
+        .doc(widget.id)
+        .update({
+          'firstName': currentUser.firstName,
+          'lastName': currentUser.lastName,
+          'email': currentUser.email,
+          'gender': currentUser.gender,
+          'userNote': currentUser.userNote,
+          'birth': dateController!.text,
+          'phoneNumber': currentUser.phoneNumber,
+        })
+        .then((value) => {
+              setState(() {
+                Navigator.pop(context, currentUser);
+              })
+            })
+        .onError((error, stackTrace) => {print('Error:${error.toString()}')});
+  }
+
+  deleteUser() async {
+    await firestore
+        .doc(widget.id)
+        .delete()
+        .then((value) => {
+              setState(() {
+                Navigator.pop(context);
+              })
+            })
+        .onError((error, stackTrace) => {
+              print(error.toString()),
+            });
   }
 }

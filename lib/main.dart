@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_practice_application/firebase_options.dart';
 import 'package:flutter_practice_application/screens/home.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'package:firebase_core/firebase_core.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(
+    MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      home: Home(),
+      darkTheme: ThemeData.dark(),
+      home: const Home(),
     );
   }
 }
