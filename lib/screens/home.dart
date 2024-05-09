@@ -1,8 +1,10 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_practice_application/screens/user_details.dart';
+import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 class Home extends StatefulWidget {
@@ -12,25 +14,72 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
+List<User> userDetailList = [];
+
 class _HomeState extends State<Home> {
-  User? user = User();
-  List<User> userDetailList = [];
-  final firestore = FirebaseFirestore.instance.collection('users').snapshots();
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsers();
+  }
+
+  void _fetchUsers() async {
+    // Fetch users from Firestore
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance.collection('users').get();
+
+    // Parse fetched user data and add to userDetailList
+    List<User> users =
+        querySnapshot.docs.map((doc) => User.fromJson(doc.data())).toList();
+
+    setState(() {
+      userDetailList = users;
+    });
+  }
+
+  void onDeleteUser(String userId) {
+    setState(() {
+      userDetailList.removeWhere((user) => user.id == userId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ScreenTypeLayout.builder(
-        mobile: (context) {
-          return mobile();
-        },
-        tablet: (context) {
-          return tablet();
-        },
-        desktop: (context) {
-          return desktop();
-        },
+      backgroundColor: const Color.fromARGB(255, 38, 42, 49),
+      appBar: AppBar(
+        backgroundColor: const Color(0xff76ABAE),
+        title: Text('User Details',
+            style: GoogleFonts.archivo(
+              textStyle: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+              ),
+            )),
+        centerTitle: false,
+        foregroundColor: Colors.white,
       ),
+      body: Column(children: [
+        Expanded(
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream:
+                    FirebaseFirestore.instance.collection('users').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+
+                  return ScreenTypeLayout.builder(
+                    mobile: (p0) => mobile(),
+                    tablet: (p0) => tablet(),
+                    desktop: (p0) => desktop(),
+                  );
+                }))
+      ]),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xff76ABAE),
         onPressed: () async {
@@ -40,6 +89,7 @@ class _HomeState extends State<Home> {
             MaterialPageRoute(
                 builder: (context) => UserDetailsPage(
                       isEditButton: true,
+                      onDeleteUser: onDeleteUser,
                     )),
           );
 
@@ -59,811 +109,545 @@ class _HomeState extends State<Home> {
   }
 
   Widget mobile() {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 38, 42, 49),
-      appBar: AppBar(
-        backgroundColor: const Color(0xff76ABAE),
-        title: Text('User Details',
-            style: GoogleFonts.archivo(
-              textStyle: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w600,
-              ),
-            )),
-        centerTitle: true,
-        foregroundColor: Colors.white,
-      ),
-      body: Column(children: [
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: firestore,
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                print(snapshot.error.toString());
-              }
-              return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    String id = snapshot.data!.docs[index]['id'].toString();
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => UserDetailsPage(
-                                        user: User(
-                                          firstName: snapshot.data!.docs[index]
-                                              ['firstName'],
-                                          lastName: snapshot.data!.docs[index]
-                                              ['lastName'],
-                                          email: snapshot.data!.docs[index]
-                                              ['email'],
-                                          gender: snapshot.data!.docs[index]
-                                              ['gender'],
-                                          phoneNumber: snapshot
-                                              .data!.docs[index]['phoneNumber'],
-                                          userNote: snapshot.data!.docs[index]
-                                              ['userNote'],
-                                          // Assuming 'birth' is the field for date of birth
-                                          dateOfBirth: DateTime.parse(snapshot
-                                              .data!.docs[index]['birth']),
-                                        ),
-                                        id: id,
-                                        icon: true,
-                                      )));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 5),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 38, 42, 49),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0xff76ABAE),
-                                  spreadRadius: 4,
-                                  blurRadius: 7,
-                                  offset: Offset(0, 3),
+    return ListView.builder(
+      itemCount: userDetailList.length,
+      itemBuilder: (context, index) {
+        User user = userDetailList[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserDetailsPage(
+                    user: user,
+                    id: user.id,
+                    icon: true,
+                    onDeleteUser: onDeleteUser,
+                  ),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 38, 42, 49),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0xff76ABAE),
+                      spreadRadius: 4,
+                      blurRadius: 7,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    color: const Color(0xff76ABAE),
+                  ),
+                ),
+                padding: const EdgeInsets.all(8.0),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 4),
+                                child: Icon(
+                                  Icons.person,
+                                  color: Color.fromARGB(174, 15, 14, 14),
                                 ),
-                              ],
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: const Color(0xff76ABAE),
                               ),
+                              Text(
+                                '${user.firstName} ${user.lastName}',
+                                style: GoogleFonts.archivo(
+                                  textStyle: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            DateFormat('yyyy-MM-dd').format(user.dateOfBirth!),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(right: 4),
+                            child: Icon(
+                              Icons.email_rounded,
+                              color: Color.fromARGB(174, 15, 14, 14),
                             ),
-                            padding: const EdgeInsets.all(8.0),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 7),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.person,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Container(
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    snapshot
-                                                        .data!
-                                                        .docs[index]
-                                                            ['firstName']
-                                                        .toString(),
-                                                    style: GoogleFonts.archivo(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 3,
-                                                  ),
-                                                  Text(
-                                                    snapshot.data!
-                                                        .docs[index]['lastName']
-                                                        .toString(),
-                                                    style: GoogleFonts.archivo(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        snapshot.data!.docs[index]['birth']
-                                            .toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child: Icon(
-                                          Icons.email_rounded,
-                                          color:
-                                              Color.fromARGB(174, 15, 14, 14),
-                                        ),
-                                      ),
-                                      Text(
-                                        snapshot.data!.docs[index]['email']
-                                            .toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.male,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Text(
-                                              snapshot
-                                                  .data!.docs[index]['gender']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.phone,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Text(
-                                              snapshot.data!
-                                                  .docs[index]['phoneNumber']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  if (snapshot.data!.docs[index]['userNote'] !=
-                                      null) ...[
-                                    const SizedBox(height: 5),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      child: Visibility(
-                                        child: Container(
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromARGB(
-                                                240, 238, 227, 124),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 4),
-                                            child: Text(
-                                              snapshot
-                                                  .data!.docs[index]['userNote']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ]
-                                ],
+                          ),
+                          Text(
+                            '${user.email}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 4),
+                                child: Icon(
+                                  Icons.male,
+                                  color: Color.fromARGB(174, 15, 14, 14),
+                                ),
+                              ),
+                              Text(
+                                '${user.gender}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 4),
+                                child: Icon(
+                                  Icons.phone,
+                                  color: Color.fromARGB(174, 15, 14, 14),
+                                ),
+                              ),
+                              Text(
+                                '${user.phoneNumber}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      if (user.userNote != null) ...[
+                        const SizedBox(height: 5),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          child: Visibility(
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(240, 238, 227, 124),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 4),
+                                child: Text(
+                                  '${user.userNote}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  });
-            },
+                      ]
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-        )
-      ]),
+        );
+      },
     );
   }
 
   Widget desktop() {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 38, 42, 49),
-      appBar: AppBar(
-        backgroundColor: const Color(0xff76ABAE),
-        title: Text('User Details',
-            style: GoogleFonts.archivo(
-              textStyle: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w600,
-              ),
-            )),
-        centerTitle: true,
-        foregroundColor: Colors.white,
-      ),
-      body: Column(children: [
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: firestore,
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                print(snapshot.error.toString());
-              }
-              return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 5,
-                      crossAxisSpacing: 5),
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    String id = snapshot.data!.docs[index]['id'].toString();
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => UserDetailsPage(
-                                        user: User(
-                                          firstName: snapshot.data!.docs[index]
-                                              ['firstName'],
-                                          lastName: snapshot.data!.docs[index]
-                                              ['lastName'],
-                                          email: snapshot.data!.docs[index]
-                                              ['email'],
-                                          gender: snapshot.data!.docs[index]
-                                              ['gender'],
-                                          phoneNumber: snapshot
-                                              .data!.docs[index]['phoneNumber'],
-                                          userNote: snapshot.data!.docs[index]
-                                              ['userNote'],
-                                          // Assuming 'birth' is the field for date of birth
-                                          dateOfBirth: DateTime.parse(snapshot
-                                              .data!.docs[index]['birth']),
-                                        ),
-                                        id: id,
-                                        icon: true,
-                                      )));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 5),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 38, 42, 49),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0xff76ABAE),
-                                  spreadRadius: 4,
-                                  blurRadius: 7,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: const Color(0xff76ABAE),
-                              ),
-                            ),
-                            padding: const EdgeInsets.all(8.0),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 7),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+    return GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4, mainAxisSpacing: 5, crossAxisSpacing: 5),
+        itemCount: userDetailList.length,
+        itemBuilder: (context, index) {
+          final user = userDetailList[index];
+          final id = user.id;
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserDetailsPage(
+                              user: user,
+                              id: id,
+                              icon: true,
+                            )));
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 38, 42, 49),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0xff76ABAE),
+                        spreadRadius: 4,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: const Color(0xff76ABAE),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              child: Row(
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.person,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Container(
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    snapshot
-                                                        .data!
-                                                        .docs[index]
-                                                            ['firstName']
-                                                        .toString(),
-                                                    style: GoogleFonts.archivo(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 3,
-                                                  ),
-                                                  Text(
-                                                    snapshot.data!
-                                                        .docs[index]['lastName']
-                                                        .toString(),
-                                                    style: GoogleFonts.archivo(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        snapshot.data!.docs[index]['birth']
-                                            .toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child: Icon(
-                                          Icons.email_rounded,
-                                          color:
-                                              Color.fromARGB(174, 15, 14, 14),
-                                        ),
-                                      ),
-                                      Text(
-                                        snapshot.data!.docs[index]['email']
-                                            .toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.male,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Text(
-                                              snapshot
-                                                  .data!.docs[index]['gender']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.phone,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Text(
-                                              snapshot.data!
-                                                  .docs[index]['phoneNumber']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  if (snapshot.data!.docs[index]['userNote'] !=
-                                      null) ...[
-                                    const SizedBox(height: 5),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      child: Visibility(
-                                        child: Container(
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromARGB(
-                                                240, 238, 227, 124),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 4),
-                                            child: Text(
-                                              snapshot
-                                                  .data!.docs[index]['userNote']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: Icon(
+                                      Icons.person,
+                                      color: Color.fromARGB(174, 15, 14, 14),
                                     ),
-                                  ]
+                                  ),
+                                  Container(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          '${user.firstName}',
+                                          style: GoogleFonts.archivo(
+                                            textStyle: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 3,
+                                        ),
+                                        Text(
+                                          '${user.lastName}',
+                                          style: GoogleFonts.archivo(
+                                            textStyle: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                          ),
+                            Text(
+                              DateFormat('yyyy-MM-dd')
+                                  .format(user.dateOfBirth!),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
                         ),
-                      ),
-                    );
-                  });
-            },
-          ),
-        )
-      ]),
-    );
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(right: 4),
+                              child: Icon(
+                                Icons.email_rounded,
+                                color: Color.fromARGB(174, 15, 14, 14),
+                              ),
+                            ),
+                            Text(
+                              '${user.email}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              child: Row(
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: Icon(
+                                      Icons.male,
+                                      color: Color.fromARGB(174, 15, 14, 14),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.gender}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              child: Row(
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 4),
+                                    child: Icon(
+                                      Icons.phone,
+                                      color: Color.fromARGB(174, 15, 14, 14),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${user.phoneNumber}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        if (user.userNote != null) ...[
+                          const SizedBox(height: 5),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            child: Visibility(
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(240, 238, 227, 124),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 4),
+                                  child: Text(
+                                    '${user.userNote}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
   }
+}
 
-  Widget tablet() {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 38, 42, 49),
-      appBar: AppBar(
-        backgroundColor: const Color(0xff76ABAE),
-        title: Text('User Details',
-            style: GoogleFonts.archivo(
-              textStyle: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w600,
-              ),
-            )),
-        centerTitle: true,
-        foregroundColor: Colors.white,
-      ),
-      body: Column(children: [
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: firestore,
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                print(snapshot.error.toString());
-              }
-              return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8),
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    String id = snapshot.data!.docs[index]['id'].toString();
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => UserDetailsPage(
-                                        user: User(
-                                          firstName: snapshot.data!.docs[index]
-                                              ['firstName'],
-                                          lastName: snapshot.data!.docs[index]
-                                              ['lastName'],
-                                          email: snapshot.data!.docs[index]
-                                              ['email'],
-                                          gender: snapshot.data!.docs[index]
-                                              ['gender'],
-                                          phoneNumber: snapshot
-                                              .data!.docs[index]['phoneNumber'],
-                                          userNote: snapshot.data!.docs[index]
-                                              ['userNote'],
-                                          // Assuming 'birth' is the field for date of birth
-                                          dateOfBirth: DateTime.parse(snapshot
-                                              .data!.docs[index]['birth']),
+Widget tablet() {
+  return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, mainAxisSpacing: 5, crossAxisSpacing: 5),
+      itemCount: userDetailList.length,
+      itemBuilder: (context, index) {
+        final user = userDetailList[index];
+        final id = user.id;
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserDetailsPage(
+                            user: user,
+                            id: id,
+                            icon: true,
+                          )));
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 38, 42, 49),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0xff76ABAE),
+                      spreadRadius: 4,
+                      blurRadius: 7,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    color: const Color(0xff76ABAE),
+                  ),
+                ),
+                padding: const EdgeInsets.all(8.0),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            child: Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 4),
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Color.fromARGB(174, 15, 14, 14),
+                                  ),
+                                ),
+                                Container(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${user.firstName}',
+                                        style: GoogleFonts.archivo(
+                                          textStyle: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                        id: id,
-                                        icon: true,
-                                      )));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 5),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 38, 42, 49),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0xff76ABAE),
-                                  spreadRadius: 4,
-                                  blurRadius: 7,
-                                  offset: Offset(0, 3),
+                                      ),
+                                      const SizedBox(
+                                        width: 3,
+                                      ),
+                                      Text(
+                                        '${user.lastName}',
+                                        style: GoogleFonts.archivo(
+                                          textStyle: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: const Color(0xff76ABAE),
-                              ),
                             ),
-                            padding: const EdgeInsets.all(8.0),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 7),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.person,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Container(
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    snapshot
-                                                        .data!
-                                                        .docs[index]
-                                                            ['firstName']
-                                                        .toString(),
-                                                    style: GoogleFonts.archivo(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 3,
-                                                  ),
-                                                  Text(
-                                                    snapshot.data!
-                                                        .docs[index]['lastName']
-                                                        .toString(),
-                                                    style: GoogleFonts.archivo(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        snapshot.data!.docs[index]['birth']
-                                            .toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
+                          ),
+                          Text(
+                            DateFormat('yyyy-MM-dd').format(user.dateOfBirth!),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(right: 4),
+                            child: Icon(
+                              Icons.email_rounded,
+                              color: Color.fromARGB(174, 15, 14, 14),
+                            ),
+                          ),
+                          Text(
+                            '${user.email}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            child: Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 4),
+                                  child: Icon(
+                                    Icons.male,
+                                    color: Color.fromARGB(174, 15, 14, 14),
                                   ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 4),
-                                        child: Icon(
-                                          Icons.email_rounded,
-                                          color:
-                                              Color.fromARGB(174, 15, 14, 14),
-                                        ),
-                                      ),
-                                      Text(
-                                        snapshot.data!.docs[index]['email']
-                                            .toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ],
+                                ),
+                                Text(
+                                  '${user.gender}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            child: Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 4),
+                                  child: Icon(
+                                    Icons.phone,
+                                    color: Color.fromARGB(174, 15, 14, 14),
                                   ),
-                                  const SizedBox(height: 3),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.male,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Text(
-                                              snapshot
-                                                  .data!.docs[index]['gender']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        child: Row(
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 4),
-                                              child: Icon(
-                                                Icons.phone,
-                                                color: Color.fromARGB(
-                                                    174, 15, 14, 14),
-                                              ),
-                                            ),
-                                            Text(
-                                              snapshot.data!
-                                                  .docs[index]['phoneNumber']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  if (snapshot.data!.docs[index]['userNote'] !=
-                                      null) ...[
-                                    const SizedBox(height: 5),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 8),
-                                      child: Visibility(
-                                        child: Container(
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromARGB(
-                                                240, 238, 227, 124),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 4),
-                                            child: Text(
-                                              snapshot
-                                                  .data!.docs[index]['userNote']
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ]
-                                ],
+                                ),
+                                Text(
+                                  '${user.phoneNumber}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      if (user.userNote != null) ...[
+                        const SizedBox(height: 5),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          child: Visibility(
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(240, 238, 227, 124),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 4),
+                                child: Text(
+                                  '${user.userNote}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  });
-            },
+                      ]
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-        )
-      ]),
-    );
-  }
+        );
+      });
 }

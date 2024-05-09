@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
+import 'package:flutter_practice_application/screens/home.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,12 +12,15 @@ class UserDetailsPage extends StatefulWidget {
   bool isEditButton;
   String? id;
   bool icon;
+  final Function(String)? onDeleteUser;
+
   UserDetailsPage({
     Key? key,
     this.user,
     this.id,
     this.icon = false,
     this.isEditButton = false,
+    this.onDeleteUser,
   }) : super(key: key);
 
   @override
@@ -40,8 +44,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   bool isLoading = false;
   late User currentUser;
 
-  CollectionReference firestore =
-      FirebaseFirestore.instance.collection('users');
   List<String> genderOption = ['Male', 'Female', 'Other'];
   final _formKey = GlobalKey<FormState>();
   bool _isFocused = false;
@@ -59,7 +61,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                         if (widget.icon)
                           IconButton(
                               onPressed: () {
-                                if (widget.icon) deleteUser();
+                                if (widget.icon) deleteUserData();
                               },
                               icon: const Icon(Icons.delete))
                       ],
@@ -473,36 +475,20 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   storeUserData() async {
     String id = DateTime.now().millisecondsSinceEpoch.toString();
     currentUser.id = id;
-    await firestore
-        .doc(currentUser.id)
-        .set({
-          'firstName': currentUser.firstName,
-          'lastName': currentUser.lastName,
-          'email': currentUser.email,
-          'gender': currentUser.gender,
-          'userNote': currentUser.userNote,
-          'birth': dateController!.text,
-          'phoneNumber': currentUser.phoneNumber,
-          'id': currentUser.id,
-        })
-        .then((value) => {
-              Navigator.pop(context, currentUser),
-            })
-        .onError((error, stackTrace) => {print('Error:${error.toString()}')});
-  }
-
-  updateUserData() async {
-    await firestore
-        .doc(widget.id)
-        .update({
-          'firstName': currentUser.firstName,
-          'lastName': currentUser.lastName,
-          'email': currentUser.email,
-          'gender': currentUser.gender,
-          'userNote': currentUser.userNote,
-          'birth': dateController!.text,
-          'phoneNumber': currentUser.phoneNumber,
-        })
+    final docUser =
+        FirebaseFirestore.instance.collection('users').doc(currentUser.id);
+    final user = User(
+      firstName: currentUser.firstName,
+      lastName: currentUser.lastName,
+      id: currentUser.id,
+      phoneNumber: currentUser.phoneNumber,
+      email: currentUser.email,
+      userNote: currentUser.userNote,
+      dateOfBirth: DateFormat('yyyy-MM-dd').parse(dateController!.text),
+    );
+    final json = user.toJson();
+    await docUser
+        .set(json)
         .then((value) => {
               setState(() {
                 Navigator.pop(context, currentUser);
@@ -511,17 +497,38 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         .onError((error, stackTrace) => {print('Error:${error.toString()}')});
   }
 
-  deleteUser() async {
-    await firestore
-        .doc(widget.id)
-        .delete()
+  updateUserData() async {
+    final docUser =
+        FirebaseFirestore.instance.collection('users').doc(widget.id);
+    docUser
+        .update({
+          'firstName': currentUser.firstName,
+          'lastName': currentUser.lastName,
+          'email': currentUser.email,
+          'gender': currentUser.gender,
+          'userNote': currentUser.userNote,
+          'dateOfBirth': DateFormat('yyyy-MM-dd').parse(dateController!.text),
+          'phoneNumber': currentUser.phoneNumber,
+        })
         .then((value) => {
               setState(() {
-                Navigator.pop(context);
+                Navigator.pop(context, currentUser);
+              }),
+            })
+        .onError((error, stackTrace) => {print('Error:${error.toString()}')});
+  }
+
+  deleteUserData() async {
+    final docUser =
+        FirebaseFirestore.instance.collection('users').doc(widget.id);
+    docUser
+        .delete()
+        .then((value) => {
+              Navigator.pop(context, currentUser),
+              setState(() {
+                widget.onDeleteUser!(widget.id!);
               })
             })
-        .onError((error, stackTrace) => {
-              print(error.toString()),
-            });
+        .onError((error, stackTrace) => {print('Error:${error.toString()}')});
   }
 }
