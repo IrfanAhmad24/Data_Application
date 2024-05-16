@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:stacked/stacked.dart';
+part '../user_model.g.dart';
 
-class User {
+@JsonSerializable()
+class UserModel extends BaseViewModel {
   String? id;
   String? firstName;
   String? lastName;
@@ -10,39 +13,25 @@ class User {
   String? userNote;
   DateTime? dateOfBirth;
   String? gender;
-  User(
-      {this.firstName,
-      this.lastName,
-      this.email,
-      this.phoneNumber,
-      this.userNote,
-      this.dateOfBirth,
-      this.gender,
-      this.id});
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'lastName': lastName,
-        'email': email,
-        'phoneNumber': phoneNumber,
-        'userNote': userNote,
-        'dateOfBirth': dateOfBirth != null
-            ? DateFormat('yyyy-MM-dd').format(dateOfBirth!)
-            : null,
-        'gender': gender,
-        'firstName': firstName,
-      };
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      firstName: json['firstName'],
-      lastName: json['lastName'],
-      email: json['email'],
-      gender: json['gender'],
-      phoneNumber: json['phoneNumber'],
-      userNote: json['userNote'],
-      dateOfBirth: json['dateOfBirth'] != null
-          ? DateTime.parse(json['dateOfBirth'])
-          : null,
-    );
+  UserModel({
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.phoneNumber,
+    this.userNote,
+    this.dateOfBirth,
+    this.gender,
+    this.id,
+  });
+
+  factory UserModel.fromSnapshot(
+      DocumentSnapshot<Map<String, dynamic>> snapshot) {
+    UserModel user = UserModel.fromJson(snapshot.data() ?? {});
+    user.id = snapshot.id;
+    return user;
   }
+
+  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 }
