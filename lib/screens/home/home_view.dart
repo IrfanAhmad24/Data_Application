@@ -64,15 +64,15 @@ class HomePage extends StatelessWidget {
               backgroundColor: const Color(0xff76ABAE),
               onPressed: () async {
                 // Navigate to UserDetails and wait for result
-                // final newUser =
-                //     await viewModel.navigationService.navigateToUserDetailsPage(
-                //   isEditButton: true,
-                // );
+                final newUser =
+                    await viewModel.navigationService.navigateToUserDetailsPage(
+                  isEditButton: true,
+                );
 
-                // if (newUser != null) {
-                //   viewModel.userDetailList.add(newUser as UserModel);
-                //   viewModel.rebuildUi();
-                // }
+                if (newUser != null) {
+                  viewModel.userDetailList.add(newUser as UserModel);
+                  viewModel.rebuildUi();
+                }
               },
               child: const Icon(
                 Icons.add,
