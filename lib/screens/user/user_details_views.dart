@@ -1,23 +1,16 @@
-import 'dart:js_interop';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_practice_application/models/user_model.dart';
-import 'package:flutter_practice_application/view_models/user_details_view.dart';
-import 'package:flutter_practice_application/views/home_view.dart';
-import 'package:flutter_practice_application/services/user_db_service.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stacked/stacked.dart';
+import 'user_details_model.dart';
 
-class UserDetailsPage extends StatefulWidget {
+class UserDetailsPage extends StatelessWidget {
   final UserModel? user;
   bool isEditButton;
   String? id;
   bool icon;
-  final Function(String)? onDeleteUser;
 
   UserDetailsPage({
     Key? key,
@@ -25,30 +18,7 @@ class UserDetailsPage extends StatefulWidget {
     this.id,
     this.icon = false,
     this.isEditButton = false,
-    this.onDeleteUser,
   }) : super(key: key);
-
-  @override
-  _UserDetailsPageState createState() => _UserDetailsPageState();
-}
-
-TextEditingController? dateController;
-late UserDBService userDB;
-
-class _UserDetailsPageState extends State<UserDetailsPage> {
-  @override
-  void initState() {
-    super.initState();
-    currentUser = widget.user ?? UserModel();
-    // userDB = UserDBService();
-    // Initialize the controller
-    dateController = TextEditingController(
-        text: currentUser.dateOfBirth != null
-            ? DateFormat('yyyy-MM-dd').format(currentUser.dateOfBirth!)
-            : '');
-  }
-
-  late UserModel currentUser;
 
   List<String> genderOption = ['Male', 'Female', 'Other'];
   final _formKey = GlobalKey<FormState>();
@@ -57,8 +27,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   Widget build(BuildContext context) => GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: ViewModelBuilder.reactive(
-          viewModelBuilder: () => UserViewModel(),
+      child: ViewModelBuilder<UserViewModel>.reactive(
+          viewModelBuilder: () =>
+              UserViewModel(currentUser: user ?? UserModel()),
           builder: ((context, viewModel, child) {
             return Scaffold(
               backgroundColor: const Color(0xff31363F),
@@ -67,11 +38,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   headerSliverBuilder: (context, innerBoxIsScrolled) => [
                         SliverAppBar(
                           actions: [
-                            if (widget.icon)
+                            if (icon)
                               IconButton(
                                   onPressed: () {
-                                    if (widget.icon)
-                                      viewModel.deleteUserOnDb(currentUser);
+                                    if (icon) viewModel.deleteUserOnDb();
                                   },
                                   icon: const Icon(Icons.delete))
                           ],
@@ -79,8 +49,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           snap: true,
                           backgroundColor: Colors.transparent,
                           foregroundColor: Colors.white,
-                          title: Text(
-                              widget.user == null ? 'Add User' : 'Edit User',
+                          title: Text(user == null ? 'Add User' : 'Edit User',
                               style: GoogleFonts.archivo(
                                 textStyle: const TextStyle(
                                     color: Colors.white,
@@ -128,11 +97,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                             BorderRadius.circular(8.0),
                                       )),
                                   obscureText: false,
-                                  initialValue: currentUser.firstName ?? '',
+                                  initialValue:
+                                      viewModel.currentUser.firstName ?? '',
                                   onChanged: (value) {
-                                    setState(() {
-                                      currentUser.firstName = value;
-                                    });
+                                    viewModel.currentUser.firstName = value;
+                                    viewModel.rebuildUi();
                                   },
                                   validator: (String? value) {
                                     if (value!.isEmpty) {
@@ -176,11 +145,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                             BorderRadius.circular(8.0),
                                       )),
                                   obscureText: false,
-                                  initialValue: currentUser.lastName ?? '',
+                                  initialValue:
+                                      viewModel.currentUser.lastName ?? '',
                                   onChanged: (value) {
-                                    setState(() {
-                                      currentUser.lastName = value;
-                                    });
+                                    viewModel.currentUser.lastName = value;
+                                    viewModel.rebuildUi();
                                   },
                                   validator: (String? value) {
                                     if (value!.isEmpty) {
@@ -199,28 +168,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               child: TextFormField(
                                 style: const TextStyle(color: Colors.white),
                                 cursorColor: const Color(0xff76ABAE),
-                                controller: dateController,
+                                controller: viewModel.dateController,
                                 keyboardType: TextInputType.datetime,
                                 readOnly: true,
                                 onTap: () async {
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(1900),
-                                    lastDate: DateTime.now(),
-                                    builder: (context, child) => Theme(
-                                      data: ThemeData.dark(),
-                                      child: child ?? Container(),
-                                    ),
-                                  );
-                                  if (pickedDate != null) {
-                                    setState(() {
-                                      dateController!.text =
-                                          DateFormat('yyy-MM-dd')
-                                              .format(pickedDate);
-                                      currentUser.dateOfBirth = pickedDate;
-                                    });
-                                  }
+                                  viewModel.datePicker(context);
                                 },
                                 decoration: InputDecoration(
                                   labelText: 'Date of Birth',
@@ -242,7 +194,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                               ),
                             ),
                             DropdownButtonFormField(
-                                value: currentUser.gender,
+                                value: viewModel.currentUser.gender,
                                 dropdownColor: Colors.black,
                                 padding: EdgeInsets.symmetric(
                                     horizontal:
@@ -287,9 +239,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   );
                                 }).toList(),
                                 onChanged: (value) {
-                                  setState(() {
-                                    currentUser.gender = value;
-                                  });
+                                  viewModel.currentUser.gender = value;
+                                  viewModel.rebuildUi();
                                 }),
                             Padding(
                               padding: EdgeInsets.symmetric(
@@ -323,11 +274,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                         borderRadius:
                                             BorderRadius.circular(8.0),
                                       )),
-                                  initialValue: currentUser.email ?? '',
+                                  initialValue:
+                                      viewModel.currentUser.email ?? '',
                                   onChanged: (value) {
-                                    setState(() {
-                                      currentUser.email = value;
-                                    });
+                                    viewModel.currentUser.email = value;
+                                    viewModel.rebuildUi();
                                   },
                                   obscureText: false,
                                   validator: (String? value) {
@@ -371,13 +322,13 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                             BorderRadius.circular(8.0),
                                       )),
                                   obscureText: false,
-                                  initialValue: currentUser.phoneNumber ?? '',
+                                  initialValue:
+                                      viewModel.currentUser.phoneNumber ?? '',
                                   onChanged: (
                                     value,
                                   ) {
-                                    setState(() {
-                                      currentUser.phoneNumber = value;
-                                    });
+                                    viewModel.currentUser.phoneNumber = value;
+                                    viewModel.rebuildUi();
                                   },
                                   validator: (String? value) {
                                     if (value!.isEmpty) {
@@ -419,11 +370,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                     textInputAction: TextInputAction.newline,
                                     textCapitalization:
                                         TextCapitalization.sentences,
-                                    initialValue: currentUser.userNote ?? '',
+                                    initialValue:
+                                        viewModel.currentUser.userNote ?? '',
                                     onChanged: (value) {
-                                      setState(() {
-                                        currentUser.userNote = value;
-                                      });
+                                      viewModel.currentUser.userNote = value;
+                                      viewModel.rebuildUi();
                                     },
                                     obscureText: false,
                                     validator: (value) {
@@ -437,12 +388,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                if (!widget
-                                    .isEditButton) // Show the update button only in edit mode
+                                if (!isEditButton) // Show the update button only in edit mode
                                   GestureDetector(
                                     onTap: () {
                                       if (_formKey.currentState!.validate()) {
-                                        viewModel.updateUserOnDb(currentUser);
+                                        viewModel.updateUserOnDb();
                                       }
                                     },
                                     child: Padding(
@@ -468,12 +418,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                       ),
                                     ),
                                   ),
-                                if (widget.isEditButton)
+                                if (isEditButton)
                                   GestureDetector(
                                     onTap: () async {
                                       // Validate form fields
                                       if (_formKey.currentState!.validate()) {
-                                        viewModel.createUserOnDB(currentUser);
+                                        viewModel.createUserOnDB();
                                       }
                                     },
                                     child: Padding(

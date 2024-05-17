@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_practice_application/app/app.locator.dart';
 import 'package:flutter_practice_application/app/app.router.dart';
-
 import 'package:flutter_practice_application/firebase_options.dart';
-
-
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:stacked_services/stacked_services.dart';
 

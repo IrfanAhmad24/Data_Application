@@ -1,35 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_practice_application/view_models/home_model.dart';
+import 'package:flutter_practice_application/app/app.router.dart';
+
 import 'package:flutter_practice_application/models/user_model.dart';
-import 'package:flutter_practice_application/services/user_db_service.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_practice_application/views/user_details_views.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:stacked/stacked.dart';
+import 'home_model.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-List<UserModel> userDetailList = [];
-late UserDBService userDB;
-final ref = FirebaseFirestore.instance.collection('users').snapshots();
-
-class _HomeState extends State<Home> {
-  @override
-  void initState() {
-    super.initState();
-    userDB = UserDBService();
-  }
-
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder.reactive(
+    return ViewModelBuilder<HomeViewModel>.reactive(
         viewModelBuilder: () => HomeViewModel(),
         builder: (context, viewModel, child) {
           return Scaffold(
@@ -49,7 +33,7 @@ class _HomeState extends State<Home> {
             body: Column(children: [
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: ref,
+                  stream: viewModel.getSteam(),
                   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator(
@@ -65,9 +49,12 @@ class _HomeState extends State<Home> {
                             doc as DocumentSnapshot<Map<String, dynamic>>))
                         .toList();
                     return ScreenTypeLayout.builder(
-                      mobile: (BuildContext context) => mobile(users),
-                      tablet: (BuildContext context) => tablet(users),
-                      desktop: (BuildContext context) => desktop(users),
+                      mobile: (BuildContext context) =>
+                          mobile(users, viewModel),
+                      tablet: (BuildContext context) =>
+                          tablet(users, viewModel),
+                      desktop: (BuildContext context) =>
+                          desktop(users, viewModel),
                     );
                   },
                 ),
@@ -77,19 +64,15 @@ class _HomeState extends State<Home> {
               backgroundColor: const Color(0xff76ABAE),
               onPressed: () async {
                 // Navigate to UserDetails and wait for result
-                final newUser = await Navigator.push<UserModel>(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => UserDetailsPage(
-                            isEditButton: true,
-                          )),
-                );
+                // final newUser =
+                //     await viewModel.navigationService.navigateToUserDetailsPage(
+                //   isEditButton: true,
+                // );
 
-                if (newUser != null) {
-                  setState(() {
-                    userDetailList.add(newUser);
-                  });
-                }
+                // if (newUser != null) {
+                //   viewModel.userDetailList.add(newUser as UserModel);
+                //   viewModel.rebuildUi();
+                // }
               },
               child: const Icon(
                 Icons.add,
@@ -100,7 +83,7 @@ class _HomeState extends State<Home> {
         });
   }
 
-  Widget mobile(List<UserModel> users) {
+  Widget mobile(List<UserModel> users, HomeViewModel viewModel) {
     return ListView.builder(
       itemCount: users.length,
       itemBuilder: (context, index) {
@@ -109,16 +92,8 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: InkWell(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UserDetailsPage(
-                    user: user,
-                    id: user.id,
-                    icon: true,
-                  ),
-                ),
-              );
+              viewModel.navigationService.navigateToUserDetailsPage(
+                  user: user, id: user.id, icon: true);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
@@ -274,7 +249,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget desktop(List<UserModel> users) {
+  Widget desktop(List<UserModel> users, HomeViewModel viewModel) {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4, mainAxisSpacing: 5, crossAxisSpacing: 5),
@@ -286,15 +261,10 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: InkWell(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UserDetailsPage(
-                    user: user,
-                    id: user.id,
-                    icon: true,
-                  ),
-                ),
+              viewModel.navigationService.navigateToUserDetailsPage(
+                user: user,
+                id: user.id,
+                icon: true,
               );
             },
             child: Padding(
@@ -452,7 +422,7 @@ class _HomeState extends State<Home> {
   }
 }
 
-Widget tablet(List<UserModel> users) {
+Widget tablet(List<UserModel> users, HomeViewModel viewModel) {
   return GridView.builder(
     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, mainAxisSpacing: 5, crossAxisSpacing: 5),
@@ -464,15 +434,10 @@ Widget tablet(List<UserModel> users) {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: InkWell(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserDetailsPage(
-                  user: user,
-                  id: user.id,
-                  icon: true,
-                ),
-              ),
+            viewModel.navigationService.navigateToUserDetailsPage(
+              user: user,
+              id: user.id,
+              isEditButton: true,
             );
           },
           child: Padding(
