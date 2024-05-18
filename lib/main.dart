@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_practice_application/app/app.locator.dart';
+import 'package:flutter_practice_application/app/app.router.dart';
 import 'package:flutter_practice_application/firebase_options.dart';
-import 'package:flutter_practice_application/screens/home.dart';
-
 import 'package:firebase_core/firebase_core.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 Future<void> main() async {
+  await setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
@@ -17,8 +19,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      darkTheme: ThemeData.dark(),
-      home: const Home(),
+      navigatorKey: StackedService.navigatorKey,
+      onGenerateRoute: StackedRouter().onGenerateRoute,
     );
   }
 }
